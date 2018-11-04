@@ -53,16 +53,16 @@ class Gui(gtk.Window):
         self.hb_results_error = gtk.HBox(False, 1)
         self.hb_results_error.pack_start(btn_results_error, True, False, 10)
         
-        vb_results = gtk.VBox(False, 1)
-        vb_results.pack_start(self.sp_results, True, False, 1)
-        vb_results.pack_start(self.sw_results, True, True, 1)        
-        vb_results.pack_start(self.hb_results_error, True, False, 1)
+        self.vb_results = gtk.VBox(False, 1)
+        self.vb_results.pack_start(self.sp_results, True, False, 1)
+        self.vb_results.pack_start(self.sw_results, True, True, 1)        
+        self.vb_results.pack_start(self.hb_results_error, True, False, 1)
         
         vbox = gtk.VBox(False, 1)
         vbox.pack_start(toolbar, False, False, 1)
-        vbox.pack_start(vb_results, True, False, 1)
+        vbox.pack_start(self.vb_results, True, False, 1)
         toolbar.show_all()
-        vb_results.show()
+        self.vb_results.show()
 
         self.add(vbox)
         vbox.show()
@@ -114,7 +114,34 @@ class Gui(gtk.Window):
 ##        self.actors_link = store.get_value(results_iter, 2)
 
     def btn_results_error_clicked(self, widget):
-        print "On error clicked"
+        print "On error clicked not implemented"
 
     def on_destroy(self, widget):
         gtk.main_quit()
+
+    def show_results_loading_indicator(self, is_paging):
+        self.sp_results.show()
+        self.sp_results.start()
+        self.sw_results.set_visible(is_paging)
+        self.vb_results.set_child_packing(self.cp_center, 
+                                        not is_paging, 
+                                        False, 
+                                        1, 
+                                        gtk.PACK_START)
+        self.hb_results_error.hide()
+
+    def show_results_data(self):
+        self.sp_results.hide()
+        self.sp_results.stop()
+        self.sw_results.show()
+
+    def show_results_error(self, is_paging):
+        self.sp_results.hide()
+        self.sp_results.stop()
+        self.sw_results.set_visible(is_paging)
+        self.vb_center.set_child_packing(self.hb_center_error,
+                                         not is_paging,
+                                         False,
+                                         1,
+                                         gtk.PACK_START)
+        self.hb_results_error.show()
