@@ -11,14 +11,27 @@ from search_parser import SearchParser
 def get_api_key():
     API_KEY_FILE = os.path.join(sys.path[0], "youtubeApiKey.txt")
     with open(API_KEY_FILE, "r") as f:
-        return f.read()
+        return f.read().strip()
 
 API_KEY = get_api_key()
 
+def build_search_link(query):
+    API_DOMAIN = "https://www.googleapis.com/youtube/v3/search?"
+    data = {}
+    data['part'] = 'snippet'
+    data['order'] = 'viewCount'
+    data['maxResults'] = '15'
+    data['q'] = query
+    data['type'] = 'video'
+    data['videoDefinition'] = 'standard'
+    data['fields'] = 'items(id/videoId,snippet(thumbnails/default,title)),nextPageToken'
+    data['key'] = API_KEY
+    url_values = urllib.urlencode(data)
+    return API_DOMAIN + url_values
+
 def search_net(query):
-    parser = SearchParser()
-    query = urllib.quote(query)
-    link = "https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&pageToken=15&q=" + query + "&type=video&videoDefinition=standard&fields=items(id%2FvideoId%2Csnippet(thumbnails%2Fdefault%2Ctitle))%2CnextPageToken&key=" + API_KEY
+    parser = SearchParser()    
+    link = build_search_link(query)
     try:
         response = urllib2.urlopen(link)
         parser.parse(response)

@@ -36,7 +36,8 @@ class SearchParser:
                     is_item = False
                     #print "Add to model..."
                     print title
-                    #print video_id
-                    #print url
+                    print video_id
+                    print url
+                    print
         print "Next page..."
         print next_page
