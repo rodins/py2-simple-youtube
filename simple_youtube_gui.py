@@ -4,6 +4,13 @@ pygtk.require('2.0')
 import gtk
 import gobject
 
+import os
+import sys
+
+EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
+                                                         "images",
+                                                         "blank.png"))
+
 COL_PIXBUF = 0
 COL_TEXT = 1
 ICON_VIEW_ITEM_WIDTH = 180
@@ -16,7 +23,7 @@ class Gui(gtk.Window):
         self.connect("destroy", self.on_destroy)
         self.set_border_width(5)
         self.set_size_request(700, 400)
-        #TODO: add app icon
+        #TODO: add app icon and title
 
         # Toolbar and it's items
         toolbar = gtk.Toolbar()
@@ -39,6 +46,11 @@ class Gui(gtk.Window):
         self.iv_results.set_text_column(COL_TEXT)
         self.iv_results.set_item_width(ICON_VIEW_ITEM_WIDTH)
         self.iv_results.show()
+
+        self.results_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str, str)
+        self.iv_results.set_model(self.results_store)
+        self.next_page = ""
+        
         self.sw_results = self.create_scrolled_window()
         self.sw_results.add(self.iv_results)
         vadj = self.sw_results.get_vadjustment()
@@ -145,3 +157,13 @@ class Gui(gtk.Window):
                                          1,
                                          gtk.PACK_START)
         self.hb_results_error.show()
+
+    def clear_results_model(self):
+        self.results_store.clear()
+        self.next_page = ""
+
+    
+    def add_to_results_model(self, title, href, image):
+        self.results_store.append([EMPTY_POSTER, title, href, image])
+            
+    
