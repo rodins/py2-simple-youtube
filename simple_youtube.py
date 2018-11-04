@@ -1,9 +1,14 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+import pygtk
+pygtk.require('2.0')
+import gtk
+
 import os
 import sys
 
 from search_net import SearchNet
+from simple_youtube_gui import Gui
 
 def get_api_key():
     API_KEY_FILE = os.path.join(sys.path[0], "youtubeApiKey.txt")
@@ -13,8 +18,10 @@ def get_api_key():
 API_KEY = get_api_key()
 
 def main():
-    sn = SearchNet(API_KEY)
-    sn.get_results("house m.d")
+    #sn = SearchNet(API_KEY)
+    #sn.get_results("house m.d")
+    Gui()
+    gtk.main()
 
 if __name__ == "__main__":
     main()
