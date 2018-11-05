@@ -13,11 +13,11 @@ from image_task import ImageTask
 
 EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
                                                          "images",
-                                                         "blank_medium.png"))
+                                                         "blank_default.png"))
 
 COL_PIXBUF = 0
 COL_TEXT = 1
-ICON_VIEW_ITEM_WIDTH = 350
+ICON_VIEW_ITEM_WIDTH = 150 #350
 SPINNER_SIZE = 32
 
 class Gui(gtk.Window):

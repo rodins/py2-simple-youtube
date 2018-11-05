@@ -29,7 +29,7 @@ class SearchNet:
         data['type'] = 'video'
         data['videoDefinition'] = 'standard'
         #thumbnails/medium/url default
-        data['fields'] = 'items(id/videoId,snippet(thumbnails/medium/url,title)),nextPageToken'
+        data['fields'] = 'items(id/videoId,snippet(thumbnails/default/url,title)),nextPageToken'
         data['key'] = self.API_KEY
         if self.page_token != "":
             data['pageToken'] = self.page_token
