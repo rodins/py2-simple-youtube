@@ -48,14 +48,13 @@ class Gui(gtk.Window):
         self.iv_results.set_pixbuf_column(COL_PIXBUF)
         self.iv_results.set_text_column(COL_TEXT)
         self.iv_results.set_item_width(ICON_VIEW_ITEM_WIDTH)
-        self.iv_results.show()
 
         self.results_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str, str)
         self.iv_results.set_model(self.results_store)
-        self.next_page = ""
         
         self.sw_results = self.create_scrolled_window()
         self.sw_results.add(self.iv_results)
+        self.sw_results.show_all()
         vadj = self.sw_results.get_vadjustment()
         vadj.connect("value-changed", self.on_results_scroll_to_bottom)
         self.iv_results.connect("expose-event", self.on_results_draw)
@@ -69,8 +68,8 @@ class Gui(gtk.Window):
         self.hb_results_error.pack_start(btn_results_error, True, False, 10)
         
         self.vb_results = gtk.VBox(False, 1)
-        self.vb_results.pack_start(self.sp_results, True, False, 1)
-        self.vb_results.pack_start(self.sw_results, True, True, 1)        
+        self.vb_results.pack_start(self.sw_results, True, True, 1) 
+        self.vb_results.pack_start(self.sp_results, True, False, 1)       
         self.vb_results.pack_start(self.hb_results_error, True, False, 1)
         
         vbox = gtk.VBox(False, 1)
@@ -93,21 +92,25 @@ class Gui(gtk.Window):
         scrolled_window.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         return scrolled_window
 
+    def start_search_task(self):
+        self.is_task_started = True
+        search_task = SearchTask(self.search_net)
+        search_task.start()
+        
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
             self.clear_results_model()
-            search_task = SearchTask(self.search_net, query)
-            search_task.start()
-            is_task_started = True
+            self.search_net.set_query(query)
+            self.start_search_task()
 
     def on_results_scroll_to_bottom(self, adj):
         value = adj.get_value()
         upper = adj.get_upper()
         page_size = adj.get_page_size()
         max_value = value + page_size + page_size
-        if max_value > upper:
-            print "Scrolled to bottom"
+        if max_value > upper and not self.is_task_started:
+            self.start_search_task()
 
     def on_results_draw(self, widget, event):
         visible_range = self.iv_results.get_visible_range()
@@ -170,12 +173,10 @@ class Gui(gtk.Window):
 
     def clear_results_model(self):
         self.results_store.clear()
-        self.next_page = ""
 
     
     def add_to_results_model(self, title, video_id, image_url):
         self.results_store.append([EMPTY_POSTER, title, video_id, image_url])
             
-    def set_next_page(self, next_page):
-        self.next_page = next_page
-        
+    def set_task_stopped(self):
+        self.is_task_started = False

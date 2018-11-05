@@ -17,11 +17,12 @@ class SearchParser:
             return ""
 
     def parse(self, response):
+        page_token = ""
         is_item = False
         for line in response:
             value = self.find_value("nextPageToken", line)
             if value != "":
-                next_page = value
+                page_token = value
                 continue
 
             value = self.find_value("videoId", line)
@@ -42,4 +43,4 @@ class SearchParser:
                                      title,
                                      video_id,
                                      image_url)
-        gobject.idle_add(self.gui.set_next_page, next_page)
+        return page_token

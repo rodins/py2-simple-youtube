@@ -2,11 +2,10 @@
 import threading
 
 class SearchTask(threading.Thread):
-    def __init__(self, search_net, query):
+    def __init__(self, search_net):
          self.search_net = search_net
-         self.query = query
          threading.Thread.__init__(self)
 
     def run(self):
-        self.search_net.get_results(self.query)
+        self.search_net.get_results()
     
