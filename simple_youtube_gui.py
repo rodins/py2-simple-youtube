@@ -9,6 +9,7 @@ import sys
 
 from search_net import SearchNet
 from search_task import SearchTask
+from image_task import ImageTask
 
 EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
                                                          "images",
@@ -84,6 +85,9 @@ class Gui(gtk.Window):
         
         self.is_task_started = False
         self.search_net = SearchNet(API_KEY, self)
+
+        self.images_indices = set()
+        self.images_cache = {}
         
 
     def create_scrolled_window(self):
@@ -117,19 +121,16 @@ class Gui(gtk.Window):
         if visible_range != None:
             index_from = visible_range[0][0]
             index_to = visible_range[1][0] + 1
-            print index_from
-            print index_to
             
-##            for index in range(index_from, index_to):
-##                if index not in self.range_repeat_set:
-##                    self.range_repeat_set.add(index)
-##                    # Get image link from model on index
-##                    row = self.results_store[index]
-##                    link = row[3] # 3 - image link in model
-##                    if link != "" and link not in self.images_cache:
-##                        image_thread = ImageThread(link, row, self.images_cache)
-##                        self.image_threads.append(image_thread)
-##                        image_thread.start()
+            for index in range(index_from, index_to):
+                if index not in self.images_indices:
+                    self.images_indices.add(index)
+                    # Get image link from model on index
+                    row = self.results_store[index]
+                    link = row[3] # 3 - image link in model
+                    if link != "" and link not in self.images_cache:
+                        image_task = ImageTask(link, row, self.images_cache)
+                        image_task.start()
 
     def on_result_activated(self, iconview, path):
         store = iconview.get_model()
@@ -173,10 +174,20 @@ class Gui(gtk.Window):
 
     def clear_results_model(self):
         self.results_store.clear()
+        self.images_indices.clear()
 
     
     def add_to_results_model(self, title, video_id, image_url):
-        self.results_store.append([EMPTY_POSTER, title, video_id, image_url])
+        if image_url in self.images_cache:
+            self.results_store.append([self.images_cache[image_url],
+                                       title,
+                                       video_id,
+                                       image_url])
+        else:
+            self.results_store.append([EMPTY_POSTER,
+                                       title,
+                                       video_id,
+                                       image_url])
             
     def set_task_stopped(self):
         self.is_task_started = False
