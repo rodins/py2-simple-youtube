@@ -13,7 +13,7 @@ from image_task import ImageTask
 
 EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
                                                          "images",
-                                                         "blank.png"))
+                                                         "blank_medium.png"))
 
 COL_PIXBUF = 0
 COL_TEXT = 1

@@ -28,7 +28,7 @@ class SearchNet:
         data['q'] = self.query
         data['type'] = 'video'
         data['videoDefinition'] = 'standard'
-        #thumbnails/medium/url
+        #thumbnails/medium/url default
         data['fields'] = 'items(id/videoId,snippet(thumbnails/medium/url,title)),nextPageToken'
         data['key'] = self.API_KEY
         if self.page_token != "":
