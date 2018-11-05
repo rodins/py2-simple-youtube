@@ -17,7 +17,7 @@ EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
 
 COL_PIXBUF = 0
 COL_TEXT = 1
-ICON_VIEW_ITEM_WIDTH = 180
+ICON_VIEW_ITEM_WIDTH = 350
 SPINNER_SIZE = 32
 
 class Gui(gtk.Window):
@@ -26,7 +26,7 @@ class Gui(gtk.Window):
         
         self.connect("destroy", self.on_destroy)
         self.set_border_width(5)
-        self.set_size_request(700, 400)
+        self.set_size_request(780, 400)
         #TODO: add app icon and title
 
         # Toolbar and it's items
