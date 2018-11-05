@@ -135,9 +135,8 @@ class Gui(gtk.Window):
     def on_result_activated(self, iconview, path):
         store = iconview.get_model()
         results_iter = store.get_iter(path)
-##        self.saved_item_image = store.get_value(results_iter, 0)
-##        self.playlists_title = store.get_value(results_iter, 1)
-##        self.actors_link = store.get_value(results_iter, 2)
+        video_id = store.get_value(results_iter, 2)
+        print video_id
 
     def btn_results_error_clicked(self, widget):
         print "On error clicked not implemented"
