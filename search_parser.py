@@ -1,6 +1,10 @@
 # -*- coding: UTF-8 -*-
 
+import gobject
+
 class SearchParser:
+    def __init__(self, gui):
+        self.gui = gui
 
     def find_value(self, key, line):
         offset = len(key)+4
@@ -31,13 +35,11 @@ class SearchParser:
                 continue
             value = self.find_value("url", line)
             if value != "":
-                url = value
+                image_url = value
                 if is_item:
                     is_item = False
-                    #print "Add to model..."
-                    print title
-                    print video_id
-                    print url
-                    print
-        print "Next page..."
-        print next_page
+                    gobject.idle_add(self.gui.add_to_results_model,
+                                     title,
+                                     video_id,
+                                     image_url)
+        gobject.idle_add(self.gui.set_next_page, next_page)

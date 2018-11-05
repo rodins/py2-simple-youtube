@@ -3,11 +3,11 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
+import gobject
 
 import os
 import sys
 
-from search_net import SearchNet
 from simple_youtube_gui import Gui
 
 def get_api_key():
@@ -18,9 +18,8 @@ def get_api_key():
 API_KEY = get_api_key()
 
 def main():
-    #sn = SearchNet(API_KEY)
-    #sn.get_results("house m.d")
-    Gui()
+    gobject.threads_init()
+    Gui(API_KEY)
     gtk.main()
 
 if __name__ == "__main__":

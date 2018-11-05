@@ -7,6 +7,9 @@ import gobject
 import os
 import sys
 
+from search_net import SearchNet
+from search_task import SearchTask
+
 EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
                                                          "images",
                                                          "blank.png"))
@@ -17,7 +20,7 @@ ICON_VIEW_ITEM_WIDTH = 180
 SPINNER_SIZE = 32
 
 class Gui(gtk.Window):
-    def __init__(self):
+    def __init__(self, API_KEY):
         super(Gui, self).__init__()
         
         self.connect("destroy", self.on_destroy)
@@ -72,13 +75,17 @@ class Gui(gtk.Window):
         
         vbox = gtk.VBox(False, 1)
         vbox.pack_start(toolbar, False, False, 1)
-        vbox.pack_start(self.vb_results, True, False, 1)
+        vbox.pack_start(self.vb_results, True, True, 1)
         toolbar.show_all()
         self.vb_results.show()
 
         self.add(vbox)
         vbox.show()
         self.show()
+        
+        self.is_task_started = False
+        self.search_net = SearchNet(API_KEY, self)
+        
 
     def create_scrolled_window(self):
         scrolled_window = gtk.ScrolledWindow()
@@ -88,8 +95,11 @@ class Gui(gtk.Window):
 
     def entry_activated(self, widget):
         query = widget.get_text().strip()
-        if query != "":
-            print query
+        if query != "" and not self.is_task_started:
+            self.clear_results_model()
+            search_task = SearchTask(self.search_net, query)
+            search_task.start()
+            is_task_started = True
 
     def on_results_scroll_to_bottom(self, adj):
         value = adj.get_value()
@@ -135,7 +145,7 @@ class Gui(gtk.Window):
         self.sp_results.show()
         self.sp_results.start()
         self.sw_results.set_visible(is_paging)
-        self.vb_results.set_child_packing(self.cp_center, 
+        self.vb_results.set_child_packing(self.sp_results, 
                                         not is_paging, 
                                         False, 
                                         1, 
@@ -151,7 +161,7 @@ class Gui(gtk.Window):
         self.sp_results.hide()
         self.sp_results.stop()
         self.sw_results.set_visible(is_paging)
-        self.vb_center.set_child_packing(self.hb_center_error,
+        self.vb_center.set_child_packing(self.hb_results_error,
                                          not is_paging,
                                          False,
                                          1,
@@ -163,7 +173,9 @@ class Gui(gtk.Window):
         self.next_page = ""
 
     
-    def add_to_results_model(self, title, href, image):
-        self.results_store.append([EMPTY_POSTER, title, href, image])
+    def add_to_results_model(self, title, video_id, image_url):
+        self.results_store.append([EMPTY_POSTER, title, video_id, image_url])
             
-    
+    def set_next_page(self, next_page):
+        self.next_page = next_page
+        
