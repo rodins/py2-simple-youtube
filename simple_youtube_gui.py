@@ -10,6 +10,7 @@ import sys
 from search_net import SearchNet
 from search_task import SearchTask
 from image_task import ImageTask
+from youtube_dl_processor import VideoIdProcessor
 
 EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
                                                          "images",
@@ -88,6 +89,8 @@ class Gui(gtk.Window):
 
         self.images_indices = set()
         self.images_cache = {}
+
+        self.video_id_processor = VideoIdProcessor()
         
 
     def create_scrolled_window(self):
@@ -136,10 +139,10 @@ class Gui(gtk.Window):
         store = iconview.get_model()
         results_iter = store.get_iter(path)
         video_id = store.get_value(results_iter, 2)
-        print video_id
+        self.video_id_processor.process(video_id)
 
     def btn_results_error_clicked(self, widget):
-        print "On error clicked not implemented"
+        self.start_search_task()
 
     def on_destroy(self, widget):
         gtk.main_quit()
@@ -164,7 +167,7 @@ class Gui(gtk.Window):
         self.sp_results.hide()
         self.sp_results.stop()
         self.sw_results.set_visible(is_paging)
-        self.vb_center.set_child_packing(self.hb_results_error,
+        self.vb_results.set_child_packing(self.hb_results_error,
                                          not is_paging,
                                          False,
                                          1,
