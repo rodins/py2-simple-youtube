@@ -23,11 +23,10 @@ class SearchNet:
     def build_search_link(self):
         data = {}
         data['part'] = 'snippet'
-        data['order'] = 'viewCount'
+        data['order'] = 'date'
         data['maxResults'] = '15'
         data['q'] = self.query
         data['type'] = 'video'
-        data['videoDefinition'] = 'standard'
         #thumbnails/medium/url default
         data['fields'] = 'items(id/videoId,snippet(thumbnails/default/url,title)),nextPageToken'
         data['key'] = self.API_KEY
