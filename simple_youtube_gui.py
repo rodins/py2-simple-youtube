@@ -91,6 +91,7 @@ class Gui(gtk.Window):
         self.images_cache = {}
 
         self.video_id_processor = VideoIdProcessor()
+        self.is_empty = True
         
 
     def create_scrolled_window(self):
@@ -100,6 +101,7 @@ class Gui(gtk.Window):
         return scrolled_window
 
     def start_search_task(self):
+        self.is_empty = True
         self.is_task_started = True
         search_task = SearchTask(self.search_net)
         search_task.start()
@@ -116,7 +118,7 @@ class Gui(gtk.Window):
         upper = adj.get_upper()
         page_size = adj.get_page_size()
         max_value = value + page_size + page_size
-        if max_value > upper and not self.is_task_started:
+        if max_value > upper and not self.is_task_started and not self.is_empty:
             self.start_search_task()
 
     def on_results_draw(self, widget, event):
@@ -180,6 +182,7 @@ class Gui(gtk.Window):
 
     
     def add_to_results_model(self, title, video_id, image_url):
+        self.is_empty = False
         if image_url in self.images_cache:
             self.results_store.append([self.images_cache[image_url],
                                        title,
