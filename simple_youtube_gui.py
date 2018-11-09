@@ -15,7 +15,7 @@ from youtube_dl_processor import VideoIdProcessor
 EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
                                                          "images",
                                                          "blank_default.png"))
-
+PROG_NAME = "Simple youtube"
 COL_PIXBUF = 0
 COL_TEXT = 1
 ICON_VIEW_ITEM_WIDTH = 150 #350
@@ -28,13 +28,15 @@ class Gui(gtk.Window):
         self.connect("destroy", self.on_destroy)
         self.set_border_width(5)
         self.set_size_request(780, 400)
-        #TODO: add app icon and title
         try:
             self.set_icon_from_file(os.path.join(sys.path[0],
                                                  "images", 
                                                  "youtube.png"))
         except Exception, e:
             print e.message
+
+        self.set_title(PROG_NAME)
+        self.results_title = ""
 
         # Toolbar and it's items
         toolbar = gtk.Toolbar()
@@ -115,6 +117,7 @@ class Gui(gtk.Window):
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
+            self.results_title = "Search: " + query
             self.clear_results_model()
             self.search_net.set_query(query)
             self.start_search_task()
@@ -156,6 +159,7 @@ class Gui(gtk.Window):
         gtk.main_quit()
 
     def show_results_loading_indicator(self, is_paging):
+        self.set_results_title("Loading...")
         self.sp_results.show()
         self.sp_results.start()
         self.sw_results.set_visible(is_paging)
@@ -167,11 +171,13 @@ class Gui(gtk.Window):
         self.hb_results_error.hide()
 
     def show_results_data(self):
+        self.set_results_title()
         self.sp_results.hide()
         self.sp_results.stop()
         self.sw_results.show()
 
     def show_results_error(self, is_paging):
+        self.set_results_title("Error")
         self.sp_results.hide()
         self.sp_results.stop()
         self.sw_results.set_visible(is_paging)
@@ -202,3 +208,12 @@ class Gui(gtk.Window):
             
     def set_task_stopped(self):
         self.is_task_started = False
+
+    def set_results_title(self, title = ""):
+        if title == "":
+            if self.results_title == "":
+                self.set_title(PROG_NAME)
+            else:
+                self.set_title(PROG_NAME + " - " + self.results_title)
+        else:
+            self.set_title(PROG_NAME + " - " + title)
