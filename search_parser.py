@@ -16,6 +16,17 @@ class SearchParser:
         else:
             return ""
 
+    def find_title(self, line):
+        key = "title"
+        offset = len(key)+4
+        begin = line.find(key)
+        end = line.find(",", begin+offset+1)
+        if begin != -1 and end != -1:
+            value = line[begin+offset:end-1]
+            return value
+        else:
+            return ""
+
     def parse(self, response):
         page_token = ""
         is_item = False
@@ -30,7 +41,7 @@ class SearchParser:
                 is_item = True
                 video_id = value
                 continue
-            value = self.find_value("title", line)
+            value = self.find_title(line)
             if value != "":
                 title = value
                 continue
