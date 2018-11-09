@@ -29,6 +29,12 @@ class Gui(gtk.Window):
         self.set_border_width(5)
         self.set_size_request(780, 400)
         #TODO: add app icon and title
+        try:
+            self.set_icon_from_file(os.path.join(sys.path[0],
+                                                 "images", 
+                                                 "youtube.png"))
+        except Exception, e:
+            print e.message
 
         # Toolbar and it's items
         toolbar = gtk.Toolbar()
