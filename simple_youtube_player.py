@@ -13,15 +13,16 @@ class Player:
                 break
 
     def play_link(self, link):
-        if self.player == "omxplayer":
-            try:
+        try:
+            youtube_dl = " $(youtube-dl -g -f 18 " + link + ")"
+            if self.player == "omxplayer":
                 subprocess.call(
-                ["lxterminal -e omxplayer -b $(youtube-dl -g -f 18 " + link + ")"],
-                shell=True)
-            except Exception as ex:
-                print ex
-        elif self.player != "":
-            Popen([self.player, link])
-        else:
-            print "TODO: Show error dialog - no player detected"
+                ["lxterminal -e omxplayer -b" + youtube_dl + " &"], shell=True)
+            elif self.player != "":
+                subprocess.call([self.player + youtube_dl] + " &", shell=True)
+            else:
+                print "TODO: Show error dialog - no player detected"
+        except Exception, ex:
+            print ex
+        
  
