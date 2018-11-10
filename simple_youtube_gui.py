@@ -20,6 +20,7 @@ COL_PIXBUF = 0
 COL_TEXT = 1
 ICON_VIEW_ITEM_WIDTH = 150 #350
 SPINNER_SIZE = 32
+SIDE_WIDTH = 180
 
 class Gui(gtk.Window):
     def __init__(self, API_KEY):
@@ -81,10 +82,42 @@ class Gui(gtk.Window):
         self.vb_results.pack_start(self.sw_results, True, True, 1) 
         self.vb_results.pack_start(self.sp_results, True, False, 1)       
         self.vb_results.pack_start(self.hb_results_error, True, False, 1)
+
+        # Resolutions
+        
+        self.sp_resolutions = gtk.Spinner()
+        self.sp_resolutions.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
+
+        self.btn_resolutions_error = gtk.Button("Repeat")
+        self.btn_resolutions_error.connect("clicked",
+                                           self.btn_resolutions_error_clicked)
+
+        self.tv_resolutions = self.create_tree_view()
+        self.resolutions_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
+        self.tv_resolutions.set_model(self.resolutions_store)
+        self.tv_resolutions.connect("row-activated",
+                                    self.on_resolution_activated)
+        self.tv_resolutions.show()
+        
+        vb_resolutions = gtk.VBox(False, 1)
+        vb_resolutions.pack_start(self.tv_resolutions, True, True, 1)
+        vb_resolutions.pack_start(self.sp_resolutions, True, False, 1)
+        vb_resolutions.pack_start(self.btn_resolutions_error, True, False, 1)
+        vb_resolutions.show()
+        
+        fr_resolutions = gtk.Frame("Resolutions")
+        fr_resolutions.add(vb_resolutions)
+        fr_resolutions.set_size_request(SIDE_WIDTH, -1)
+        fr_resolutions.show()
+
+        hbox = gtk.HBox(False, 1)
+        hbox.pack_start(self.vb_results, True, True, 1)
+        hbox.pack_start(fr_resolutions, False, False, 1)
+        hbox.show()
         
         vbox = gtk.VBox(False, 1)
         vbox.pack_start(toolbar, False, False, 1)
-        vbox.pack_start(self.vb_results, True, True, 1)
+        vbox.pack_start(hbox, True, True, 1)
         toolbar.show_all()
         self.vb_results.show()
 
@@ -107,6 +140,21 @@ class Gui(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         scrolled_window.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         return scrolled_window
+
+    def create_tree_view(self):
+        tree_view = gtk.TreeView()
+        
+        renderer_pixbuf = gtk.CellRendererPixbuf()
+        column = gtk.TreeViewColumn("Image", renderer_pixbuf, pixbuf=0)
+        tree_view.append_column(column)
+        
+        renderer_text = gtk.CellRendererText()
+        column = gtk.TreeViewColumn("Title", renderer_text, text=1)
+        tree_view.append_column(column)
+        
+        tree_view.set_headers_visible(False)
+        
+        return tree_view
 
     def start_search_task(self):
         self.is_empty = True
@@ -154,6 +202,12 @@ class Gui(gtk.Window):
 
     def btn_results_error_clicked(self, widget):
         self.start_search_task()
+
+    def on_resolution_activated(self, treeview, path, view_column):
+        print "On resulution click"
+
+    def btn_resolutions_error_clicked(self, widget):
+        print "Resolutions error clicked"
 
     def on_destroy(self, widget):
         gtk.main_quit()
@@ -205,6 +259,24 @@ class Gui(gtk.Window):
                                        title,
                                        video_id,
                                        image_url])
+
+    def show_resolutions_loading_indicator(self):
+        self.sp_resolutions.show()
+        self.sp_resolutions.start()
+        self.tv_resolutions.hide()
+        self.btn_resolutions_error.hide()
+
+    def show_resolutions_data(self):
+        self.sp_resolutions.hide()
+        self.sp_resolutions.stop()
+        self.tv_resolutions.show()
+        self.btn_resolutions_error.hide()
+
+    def show_resolutions_error(self):
+        self.sp_resolutions.hide()
+        self.sp_resolutions.stop()
+        self.tv_resolutions.hide()
+        self.btn_resolutions_error.show()
             
     def set_task_stopped(self):
         self.is_task_started = False
