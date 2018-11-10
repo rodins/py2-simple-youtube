@@ -11,10 +11,15 @@ from search_net import SearchNet
 from search_task import SearchTask
 from image_task import ImageTask
 from youtube_dl_processor import VideoIdProcessor
+from resolutions_task import ResolutionsTask
 
 EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
                                                          "images",
                                                          "blank_default.png"))
+YOUTUBE_PIXBUF = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
+                                                         "images",
+                                                         "youtube_16.png"))
+
 PROG_NAME = "Simple youtube"
 COL_PIXBUF = 0
 COL_TEXT = 1
@@ -131,7 +136,7 @@ class Gui(gtk.Window):
         self.images_indices = set()
         self.images_cache = {}
 
-        self.video_id_processor = VideoIdProcessor()
+        self.video_id_processor = VideoIdProcessor(self)
         self.is_empty = True
         
 
@@ -197,8 +202,9 @@ class Gui(gtk.Window):
     def on_result_activated(self, iconview, path):
         store = iconview.get_model()
         results_iter = store.get_iter(path)
-        video_id = store.get_value(results_iter, 2)
-        self.video_id_processor.process(video_id)
+        self.video_id_processor.video_id = store.get_value(results_iter, 2)
+        resolutions_task = ResolutionsTask(self.video_id_processor)
+        resolutions_task.start()
 
     def btn_results_error_clicked(self, widget):
         self.start_search_task()
@@ -261,6 +267,7 @@ class Gui(gtk.Window):
                                        image_url])
 
     def show_resolutions_loading_indicator(self):
+        self.resolutions_store.clear()
         self.sp_resolutions.show()
         self.sp_resolutions.start()
         self.tv_resolutions.hide()
@@ -277,6 +284,9 @@ class Gui(gtk.Window):
         self.sp_resolutions.stop()
         self.tv_resolutions.hide()
         self.btn_resolutions_error.show()
+
+    def add_to_resolutions_model(self, title, code):
+        self.resolutions_store.append([YOUTUBE_PIXBUF, title, code])
             
     def set_task_stopped(self):
         self.is_task_started = False
