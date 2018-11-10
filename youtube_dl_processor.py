@@ -14,7 +14,22 @@ class VideoIdProcessor:
     
     def process(self, video_id):
         if self.youtube_dl != "":
-            self.player.play_link(video_id)
+            try:
+                print "Getting formats..."
+                formats = subprocess.check_output(
+                    [self.youtube_dl + " -F " + video_id], shell=True)
+                for line in formats.splitlines():
+                    if (line.find("only") == -1
+                    and line.find(video_id) == -1
+                    and line.find("format") == -1):
+                        #print line
+                        columns = line.split()
+                        title = columns[1] + " " + columns[2]
+                        print title
+                        print columns[0]
+            except Exception as ex:
+                print ex
+            #self.player.play_link(video_id)
         else:
             print "TODO: show error dialog no youtube-dl installed"
             
