@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-import os
+
 import subprocess
 from subprocess import Popen
 import gobject
@@ -11,9 +11,12 @@ class Player:
         players = ["mpv", "omxplayer", "mplayer"]
         resolutions = {}
         for player in players:
-            if os.system("which " + player) == 0:
+            try:
+                subprocess.check_call(["which", player])
                 self.player = player
                 break
+            except Exception as ex:
+                print ex
         try:
             subprocess.check_call(["which", "streamlink"])
             self.streamlink = "streamlink"
