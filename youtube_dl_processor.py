@@ -44,5 +44,9 @@ class VideoIdProcessor:
         self.player.set_link(self.video_id, title, res)
         task = PlayerTask(self.player)
         task.start()
+
+    def retry(self):
+        task = PlayerTask(self.player)
+        task.start()
             
         

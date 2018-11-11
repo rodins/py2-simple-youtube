@@ -88,8 +88,15 @@ class Gui(gtk.Window):
         self.vb_results.pack_start(self.sp_results, True, False, 1)       
         self.vb_results.pack_start(self.hb_results_error, True, False, 1)
 
+        # Title
+        self.lb_title = gtk.Label("")
+        self.lb_title.set_size_request(SIDE_WIDTH, -1)
+        self.lb_title.set_line_wrap(True)
+        fr_title = gtk.Frame("Title")
+        fr_title.add(self.lb_title)
+        fr_title.show_all()
+
         # Resolutions
-        
         self.sp_resolutions = gtk.Spinner()
         self.sp_resolutions.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
 
@@ -112,12 +119,17 @@ class Gui(gtk.Window):
         
         fr_resolutions = gtk.Frame("Resolutions")
         fr_resolutions.add(vb_resolutions)
-        fr_resolutions.set_size_request(SIDE_WIDTH, -1)
         fr_resolutions.show()
+
+        vb_right = gtk.VBox(False, 1)
+        vb_right.set_size_request(SIDE_WIDTH, -1)
+        vb_right.pack_start(fr_title, False, False, 1)
+        vb_right.pack_start(fr_resolutions, True, True, 1)
+        vb_right.show()
 
         hbox = gtk.HBox(False, 1)
         hbox.pack_start(self.vb_results, True, True, 1)
-        hbox.pack_start(fr_resolutions, False, False, 1)
+        hbox.pack_start(vb_right, False, False, 1)
         hbox.show()
         
         vbox = gtk.VBox(False, 1)
@@ -202,6 +214,7 @@ class Gui(gtk.Window):
     def on_result_activated(self, iconview, path):
         store = iconview.get_model()
         results_iter = store.get_iter(path)
+        self.lb_title.set_text(store.get_value(results_iter, 1))
         self.video_id_processor.video_id = store.get_value(results_iter, 2)
         resolutions_task = ResolutionsTask(self.video_id_processor)
         resolutions_task.start()
@@ -215,7 +228,7 @@ class Gui(gtk.Window):
         self.video_id_processor.play(values[0], values[1])
 
     def btn_resolutions_error_clicked(self, widget):
-        print "Resolutions error clicked"
+        self.video_id_processor.retry()
 
     def on_destroy(self, widget):
         gtk.main_quit()

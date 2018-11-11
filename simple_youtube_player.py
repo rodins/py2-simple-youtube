@@ -37,10 +37,10 @@ class Player:
                 ["youtube-dl -g -f "+self.res+" "+self.video_id],
                 shell=True)
             if link.find(".m3u8") != -1:
-                res = self.title.split("x")[1] + "p"
                 if self.streamlink != "":
                     print "Starting streamlink..."
-                    gobject.idle_add(self.play_stream, res)
+                    gobject.idle_add(self.play_stream,
+                                     self.title.split("x")[1] + "p")
                 else:
                     print "Need streamlink to play this"
             else:
@@ -72,6 +72,6 @@ class Player:
             shell=True)
         else:
             print "TODO: Show error dialog - no player detected"
-        print "Player started"
+        print "Streamlink started"
         
  
