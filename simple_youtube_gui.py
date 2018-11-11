@@ -211,13 +211,16 @@ class Gui(gtk.Window):
                         image_task = ImageTask(link, row, self.images_cache)
                         image_task.start()
 
+    def start_resolutions_task(self):
+        resolutions_task = ResolutionsTask(self.video_id_processor)
+        resolutions_task.start()
+
     def on_result_activated(self, iconview, path):
         store = iconview.get_model()
         results_iter = store.get_iter(path)
         self.lb_title.set_text(store.get_value(results_iter, 1))
         self.video_id_processor.video_id = store.get_value(results_iter, 2)
-        resolutions_task = ResolutionsTask(self.video_id_processor)
-        resolutions_task.start()
+        self.start_resolutions_task()
 
     def btn_results_error_clicked(self, widget):
         self.start_search_task()
@@ -228,7 +231,7 @@ class Gui(gtk.Window):
         self.video_id_processor.play(values[0], values[1])
 
     def btn_resolutions_error_clicked(self, widget):
-        self.video_id_processor.retry()
+        self.start_resolutions_task()
 
     def on_destroy(self, widget):
         gtk.main_quit()
