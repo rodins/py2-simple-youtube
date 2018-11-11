@@ -12,9 +12,10 @@ class Player:
                 self.player = player
                 break
 
-    def play_link(self, link):
+    def play_link(self, video_id, resolution_code):
         try:
-            youtube_dl = " $(youtube-dl -g -f 18 " + link + ")"
+            youtube_dl=" $(youtube-dl -g -f "+resolution_code+" "+video_id+")"
+            print youtube_dl
             if self.player == "omxplayer":
                 subprocess.call(
                 ["lxterminal -e omxplayer -b" + youtube_dl + " &"], shell=True)

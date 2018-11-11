@@ -34,8 +34,9 @@ class VideoIdProcessor:
             except Exception as ex:
                 print ex
                 gobject.idle_add(self.gui.show_resolutions_error)
-            #self.player.play_link(video_id)
+            
         else:
             print "TODO: show error dialog no youtube-dl installed"
             
-            
+    def play(self, resolution_code):
+        self.player.play_link(self.video_id, resolution_code)
