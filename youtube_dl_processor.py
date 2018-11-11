@@ -4,6 +4,7 @@ import gobject
 import os
 import subprocess
 from simple_youtube_player import Player
+from player_task import PlayerTask
 
 class VideoIdProcessor:
     def __init__(self, gui):
@@ -39,4 +40,7 @@ class VideoIdProcessor:
             print "TODO: show error dialog no youtube-dl installed"
             
     def play(self, resolution_code):
-        self.player.play_link(self.video_id, resolution_code)
+        self.player.set_link(self.video_id, resolution_code)
+        task = PlayerTask(self.player)
+        task.start()
+        
