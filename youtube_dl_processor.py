@@ -41,6 +41,7 @@ class VideoIdProcessor:
             
     def play(self, resolution_code):
         self.player.set_link(self.video_id, resolution_code)
+        #self.player.play()
         task = PlayerTask(self.player)
         task.start()
         

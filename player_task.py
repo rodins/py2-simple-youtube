@@ -7,4 +7,4 @@ class PlayerTask(threading.Thread):
          threading.Thread.__init__(self)
 
     def run(self):
-        self.player.play()
+        self.player.get_direct_link()
