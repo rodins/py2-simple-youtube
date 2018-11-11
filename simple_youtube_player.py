@@ -3,40 +3,72 @@ import os
 import subprocess
 from subprocess import Popen
 import gobject
+import urllib2
 
 class Player:
     def __init__(self):
         self.player = ""
         players = ["mpv", "omxplayer", "mplayer"]
+        resolutions = {}
         for player in players:
             if os.system("which " + player) == 0:
                 self.player = player
                 break
-    def set_link(self, video_id, resolution_code):
+        try:
+            subprocess.check_call(["which", "streamlink"])
+            self.streamlink = "streamlink"
+        except Exception as ex:
+            print ex
+            self.streamlink = ""
+        
+            
+    def set_link(self, video_id, title, res):
         self.video_id = video_id
-        self.resolution_code = resolution_code
+        self.title = title
+        self.res = res
 
     def get_direct_link(self):
         try:
             print "Getting link..."
             link = subprocess.check_output(
-                ["youtube-dl -g -f "+self.resolution_code+" "+self.video_id],
+                ["youtube-dl -g -f "+self.res+" "+self.video_id],
                 shell=True)
-            print "Starting player..."
-            gobject.idle_add(self.play, link.strip('\n'))
+            if link.find(".m3u8") != -1:
+                res = self.title.split("x")[1] + "p"
+                if self.streamlink != "":
+                    print "Starting streamlink..."
+                    gobject.idle_add(self.play_stream, res)
+                else:
+                    print "Need streamlink to play this"
+            else:
+                print "Starting player..."
+                gobject.idle_add(self.play, link.strip('\n'))
         except Exception as ex:
             print ex
 
     def play(self, link):
         if self.player == "omxplayer":
             subprocess.call(
-            ["lxterminal -e omxplayer -b \"" + link + "\" &"], shell=True)
+            ["lxterminal -e omxplayer -b \"" + link + "\" &"],
+            shell=True)
         elif self.player != "":
-            subprocess.call([self.player + " " + link + " &"],
+            subprocess.call([self.player + " \"" + link + "\" &"],
                             shell=True)
         else:
             print "TODO: Show error dialog - no player detected"
         print "Player started"
-            
+
+    def play_stream(self, res):
+        if self.player == "omxplayer":
+            subprocess.call(
+            ["lxterminal -e "+self.streamlink+" -p \"omxplayer -b\" --player-fifo youtu.be/"+self.video_id+" "+res+" &"],
+            shell=True)
+        elif self.player != "":
+            subprocess.call(
+            ["lxterminal -e "+self.streamlink+" -p "+self.player+" --player-fifo youtu.be/"+self.video_id+" "+res+" &"],
+            shell=True)
+        else:
+            print "TODO: Show error dialog - no player detected"
+        print "Player started"
         
  

@@ -212,7 +212,7 @@ class Gui(gtk.Window):
     def on_resolution_activated(self, treeview, path, view_column):
         resolutions_iter = self.resolutions_store.get_iter(path)
         values = self.resolutions_store.get(resolutions_iter, 1, 2)
-        self.video_id_processor.play(values[1])
+        self.video_id_processor.play(values[0], values[1])
 
     def btn_resolutions_error_clicked(self, widget):
         print "Resolutions error clicked"
