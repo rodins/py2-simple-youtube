@@ -39,7 +39,8 @@ class VideoIdProcessor:
                 print ex
                 gobject.idle_add(self.gui.show_resolutions_error)
         else:
-            print "TODO: show error dialog no youtube-dl installed"
+            gobject.idle_add(self.gui.set_player_text,
+                             "No youtube-dl detected")
             
     def play(self, title, res):
         self.player.set_link(self.video_id, title, res)

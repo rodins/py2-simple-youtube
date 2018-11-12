@@ -48,8 +48,6 @@ class Player:
                     gobject.idle_add(self.gui.set_player_text,
                                      "Need streamlink to play this")
             else:
-                gobject.idle_add(self.gui.set_player_text,
-                                     "Starting player...")
                 gobject.idle_add(self.play, link.strip('\n'))
         except Exception as ex:
             print ex
