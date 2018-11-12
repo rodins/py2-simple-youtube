@@ -109,10 +109,13 @@ class Gui(gtk.Window):
         self.tv_resolutions.set_model(self.resolutions_store)
         self.tv_resolutions.connect("row-activated",
                                     self.on_resolution_activated)
-        self.tv_resolutions.show()
+
+        self.sw_resolutions = self.create_scrolled_window()
+        self.sw_resolutions.add(self.tv_resolutions)
+        self.sw_resolutions.show_all()
         
         vb_resolutions = gtk.VBox(False, 1)
-        vb_resolutions.pack_start(self.tv_resolutions, True, True, 1)
+        vb_resolutions.pack_start(self.sw_resolutions, True, True, 1)
         vb_resolutions.pack_start(self.sp_resolutions, True, False, 1)
         vb_resolutions.pack_start(self.btn_resolutions_error, True, False, 1)
         vb_resolutions.show()
@@ -288,19 +291,19 @@ class Gui(gtk.Window):
         self.resolutions_store.clear()
         self.sp_resolutions.show()
         self.sp_resolutions.start()
-        self.tv_resolutions.hide()
+        self.sw_resolutions.hide()
         self.btn_resolutions_error.hide()
 
     def show_resolutions_data(self):
         self.sp_resolutions.hide()
         self.sp_resolutions.stop()
-        self.tv_resolutions.show()
+        self.sw_resolutions.show()
         self.btn_resolutions_error.hide()
 
     def show_resolutions_error(self):
         self.sp_resolutions.hide()
         self.sp_resolutions.stop()
-        self.tv_resolutions.hide()
+        self.sw_resolutions.hide()
         self.btn_resolutions_error.show()
 
     def add_to_resolutions_model(self, title, code):
