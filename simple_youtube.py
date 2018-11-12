@@ -12,8 +12,11 @@ from simple_youtube_gui import Gui
 
 def get_api_key():
     API_KEY_FILE = os.path.join(sys.path[0], "key.txt")
-    with open(API_KEY_FILE, "r") as f:
-        return f.read().strip()
+    try:
+        with open(API_KEY_FILE, "r") as f:
+            return f.read().strip()
+    except Exception as ex:
+        return ""
 
 API_KEY = get_api_key()
 

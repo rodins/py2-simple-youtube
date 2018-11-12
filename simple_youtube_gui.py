@@ -82,11 +82,16 @@ class Gui(gtk.Window):
         btn_results_error.show()
         self.hb_results_error = gtk.HBox(False, 1)
         self.hb_results_error.pack_start(btn_results_error, True, False, 10)
+
+        # No api key label
+        lb_api_key = gtk.Label("No youtube api key found. It should be in the file 'key.txt' in the application directory.")
+        lb_api_key.set_line_wrap(True)
         
         self.vb_results = gtk.VBox(False, 1)
         self.vb_results.pack_start(self.sw_results, True, True, 1) 
         self.vb_results.pack_start(self.sp_results, True, False, 1)       
         self.vb_results.pack_start(self.hb_results_error, True, False, 1)
+        self.vb_results.pack_start(lb_api_key, True, False, 1)
 
         # Title
         self.lb_title = gtk.Label("")
@@ -163,6 +168,9 @@ class Gui(gtk.Window):
 
         self.video_id_processor = VideoIdProcessor(self)
         self.is_empty = True
+        if API_KEY == "":
+            lb_api_key.show()
+            self.sw_results.hide()
         
 
     def create_scrolled_window(self):

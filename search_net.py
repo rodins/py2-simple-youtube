@@ -36,7 +36,7 @@ class SearchNet:
         return self.API_DOMAIN + url_values
 
     def get_results(self):
-        if self.query != "":
+        if self.query != "" and self.API_KEY != "":
             link = self.build_search_link()
             is_paging = (self.page_token != "")
             try:
