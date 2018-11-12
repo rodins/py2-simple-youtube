@@ -9,7 +9,10 @@ class SearchParser:
 
     def parse(self, response):
         js = json.load(response)
-        page_token = js["nextPageToken"]
+        try:
+            page_token = js["nextPageToken"]
+        except:
+            page_token = ""
         
         for item in js["items"]:
             gobject.idle_add(self.gui.add_to_results_model,
