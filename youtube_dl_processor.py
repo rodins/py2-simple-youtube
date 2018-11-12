@@ -23,7 +23,8 @@ class VideoIdProcessor:
             try:
                 gobject.idle_add(self.gui.show_resolutions_loading_indicator)
                 formats = subprocess.check_output(
-                    [self.youtube_dl + " -F " + self.video_id], shell=True)
+                    [self.youtube_dl + " -F " + "youtu.be/" + self.video_id],
+                    shell=True)
                 gobject.idle_add(self.gui.show_resolutions_data)
                 for line in formats.splitlines():
                     if (line.find("only") == -1
