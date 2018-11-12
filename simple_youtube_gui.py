@@ -124,10 +124,19 @@ class Gui(gtk.Window):
         fr_resolutions.add(vb_resolutions)
         fr_resolutions.show()
 
+        # Player frame
+        self.lb_player = gtk.Label("")
+        self.lb_player.set_size_request(SIDE_WIDTH, -1)
+        self.lb_player.set_line_wrap(True)
+        fr_player = gtk.Frame("Player")
+        fr_player.add(self.lb_player)
+        fr_player.show_all()
+
         vb_right = gtk.VBox(False, 1)
         vb_right.set_size_request(SIDE_WIDTH, -1)
         vb_right.pack_start(fr_title, False, False, 1)
         vb_right.pack_start(fr_resolutions, True, True, 1)
+        vb_right.pack_start(fr_player, False, False, 1)
         vb_right.show()
 
         hbox = gtk.HBox(False, 1)
