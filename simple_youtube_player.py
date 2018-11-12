@@ -6,17 +6,19 @@ import gobject
 import urllib2
 
 class Player:
-    def __init__(self):
+    def __init__(self, gui):
+        self.gui = gui
         self.player = ""
-        players = ["mpv", "omxplayer", "mplayer"]
+        players = ["mpv", "omxplayer", "vlc", "mplayer"]
         resolutions = {}
         for player in players:
             try:
                 subprocess.check_call(["which", player])
                 self.player = player
+                self.gui.set_player_init_text("Detected: " + player)
                 break
-            except Exception as ex:
-                print ex
+            except:
+                self.gui.set_player_init_text("Not detected")
         try:
             subprocess.check_call(["which", "streamlink"])
             self.streamlink = "streamlink"
@@ -32,46 +34,51 @@ class Player:
 
     def get_direct_link(self):
         try:
-            print "Getting link..."
+            gobject.idle_add(self.gui.set_player_text, "Getting link...")
             link = subprocess.check_output(
                 ["youtube-dl -g -f "+self.res+" "+self.video_id],
                 shell=True)
             if link.find(".m3u8") != -1:
                 if self.streamlink != "":
-                    print "Starting streamlink..."
+                    gobject.idle_add(self.gui.set_player_text,
+                                     "Starting streamlink...")
                     gobject.idle_add(self.play_stream,
                                      self.title.split("x")[1] + "p")
                 else:
-                    print "Need streamlink to play this"
+                    gobject.idle_add(self.gui.set_player_text,
+                                     "Need streamlink to play this")
             else:
-                print "Starting player..."
+                gobject.idle_add(self.gui.set_player_text,
+                                     "Starting player...")
                 gobject.idle_add(self.play, link.strip('\n'))
         except Exception as ex:
             print ex
 
     def play(self, link):
+        if self.player == "":
+            return
         if self.player == "omxplayer":
             subprocess.call(
             ["lxterminal -e omxplayer -b \"" + link + "\" &"],
             shell=True)
-        elif self.player != "":
+        else:
             subprocess.call([self.player + " \"" + link + "\" &"],
                             shell=True)
-        else:
-            print "TODO: Show error dialog - no player detected"
-        print "Player started"
+        gobject.idle_add(self.gui.set_player_text,
+                         "Player started")
 
     def play_stream(self, res):
+        if self.player == "":
+            return
         if self.player == "omxplayer":
             subprocess.call(
             ["lxterminal -e "+self.streamlink+" -p \"omxplayer -b\" --player-fifo youtu.be/"+self.video_id+" "+res+" &"],
             shell=True)
-        elif self.player != "":
+        else:
             subprocess.call(
             ["lxterminal -e "+self.streamlink+" -p "+self.player+" --player-fifo youtu.be/"+self.video_id+" "+res+" &"],
             shell=True)
-        else:
-            print "TODO: Show error dialog - no player detected"
-        print "Streamlink started"
+        gobject.idle_add(self.gui.set_player_text,
+                         "Streamlink started")
         
  

@@ -125,6 +125,7 @@ class Gui(gtk.Window):
         fr_resolutions.show()
 
         # Player frame
+        self.player_init_text = ""
         self.lb_player = gtk.Label("")
         self.lb_player.set_size_request(SIDE_WIDTH, -1)
         self.lb_player.set_line_wrap(True)
@@ -298,6 +299,7 @@ class Gui(gtk.Window):
 
     def show_resolutions_loading_indicator(self):
         self.resolutions_store.clear()
+        self.set_player_init_text()
         self.sp_resolutions.show()
         self.sp_resolutions.start()
         self.sw_resolutions.hide()
@@ -317,6 +319,14 @@ class Gui(gtk.Window):
 
     def add_to_resolutions_model(self, title, code):
         self.resolutions_store.append([YOUTUBE_PIXBUF, title, code])
+
+    def set_player_init_text(self, text=""):
+        if text != "":
+            self.init_player_text = text
+        self.set_player_text(self.init_player_text)
+
+    def set_player_text(self, text):
+        self.lb_player.set_text(text)
             
     def set_task_stopped(self):
         self.is_task_started = False

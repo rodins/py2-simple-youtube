@@ -9,7 +9,7 @@ from player_task import PlayerTask
 class VideoIdProcessor:
     def __init__(self, gui):
         self.gui = gui
-        self.player = Player()
+        self.player = Player(gui)
         self.video_id = ""
         try:
             subprocess.check_call(["which", "youtube-dl"])
