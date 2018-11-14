@@ -36,7 +36,7 @@ class Player:
         try:
             gobject.idle_add(self.gui.set_player_text, "Getting link...")
             link = subprocess.check_output(
-                ["youtube-dl -g -f "+self.res+" "+"youtu.be/"+self.video_id],
+                ["youtube-dl -g -f "+self.res+" "+"http://youtu.be/"+self.video_id],
                 shell=True)
             if link.find(".m3u8") != -1:
                 if self.streamlink != "":
@@ -70,11 +70,11 @@ class Player:
             return
         if self.player == "omxplayer":
             subprocess.call(
-            ["lxterminal -e "+self.streamlink+" -p \"omxplayer -b\" --player-fifo youtu.be/"+self.video_id+" "+res+" &"],
+            ["lxterminal -e "+self.streamlink+" -p \"omxplayer -b\" --player-fifo http://youtu.be/"+self.video_id+" "+res+" &"],
             shell=True)
         else:
             subprocess.call(
-            [self.streamlink+" -p "+self.player+" --player-fifo youtu.be/"+self.video_id+" "+res+" &"],
+            [self.streamlink+" -p "+self.player+" --player-fifo http://youtu.be/"+self.video_id+" "+res+" &"],
             shell=True)
         gobject.idle_add(self.gui.set_player_text,
                          "Streamlink started")
