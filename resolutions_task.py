@@ -8,4 +8,7 @@ class ResolutionsTask(threading.Thread):
          threading.Thread.__init__(self)
 
     def run(self):
-        self.processor.process()
+        if self.is_ytdl:
+            self.processor.process_ytdl()
+        else:
+            self.processor.process_streamlink()

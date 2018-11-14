@@ -135,9 +135,9 @@ class Gui(gtk.Window):
         vb_client = gtk.VBox(False, 1)
         vb_client.pack_start(self.rb_ytdl, False, False, 1)
         vb_client.pack_start(self.rb_streamlink, False, False, 1)
-        fr_client = gtk.Frame("Client")
-        fr_client.add(vb_client)
-        fr_client.show_all()
+        self.fr_client = gtk.Frame("Client")
+        self.fr_client.add(vb_client)
+        self.fr_client.show_all()
 
         # Player frame
         self.player_init_text = ""
@@ -152,7 +152,7 @@ class Gui(gtk.Window):
         vb_right.set_size_request(SIDE_WIDTH, -1)
         vb_right.pack_start(fr_title, False, False, 1)
         vb_right.pack_start(fr_resolutions, True, True, 1)
-        vb_right.pack_start(fr_client, False, False, 1)
+        vb_right.pack_start(self.fr_client, False, False, 1)
         vb_right.pack_start(fr_player, False, False, 1)
         vb_right.show()
 
@@ -186,7 +186,7 @@ class Gui(gtk.Window):
         elif is_streamlink:
             self.rb_streamlink.set_active(True)
         else:
-            fr_client.hide()
+            self.fr_client.hide()
 
         vb_client.set_sensitive(is_ytdl and is_streamlink)
         
@@ -256,8 +256,12 @@ class Gui(gtk.Window):
                         image_task.start()
 
     def start_resolutions_task(self):
-        resolutions_task = ResolutionsTask(self.video_id_processor)
-        resolutions_task.start()
+        if self.fr_client.get_visible():
+            resolutions_task = ResolutionsTask(self.video_id_processor)
+            resolutions_task.is_ytdl = self.rb_ytdl.get_active()
+            resolutions_task.start()
+        else:
+            self.set_player_text("No youtube-dl or streamlink detected")
 
     def on_result_activated(self, iconview, path):
         store = iconview.get_model()

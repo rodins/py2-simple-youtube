@@ -20,7 +20,7 @@ class Player:
             except:
                 self.gui.set_player_init_text("Not detected")
         try:
-            subprocess.check_call(["which", "nostreamlink"])
+            subprocess.check_call(["which", "streamlink"])
             self.streamlink = "streamlink"
         except Exception as ex:
             print ex

@@ -18,7 +18,7 @@ class VideoIdProcessor:
             print ex
             self.youtube_dl = ""
 
-    def process(self):
+    def process_ytdl(self):
         if self.youtube_dl != "":
             try:
                 gobject.idle_add(self.gui.show_resolutions_loading_indicator)
@@ -38,9 +38,23 @@ class VideoIdProcessor:
             except Exception as ex:
                 print ex
                 gobject.idle_add(self.gui.show_resolutions_error)
-        else:
-            gobject.idle_add(self.gui.set_player_text,
-                             "No youtube-dl detected")
+
+    def process_streamlink(self):
+        if self.player.streamlink != "":
+            try:
+                gobject.idle_add(self.gui.show_resolutions_loading_indicator)
+                formats = subprocess.check_output(
+                    [self.player.streamlink + " http://youtu.be/" + self.video_id],
+                    shell=True)
+                gobject.idle_add(self.gui.show_resolutions_data)
+                for res in formats.split(':')[2].split(','):
+                    title = res.strip()
+                    gobject.idle_add(self.gui.add_to_resolutions_model,
+                                     title,
+                                     title.split(' ')[0])
+            except Exception as ex:
+                print ex
+                gobject.idle_add(self.gui.show_resolutions_error)
             
     def play(self, title, res):
         self.player.set_link(self.video_id, title, res)
