@@ -129,6 +129,16 @@ class Gui(gtk.Window):
         fr_resolutions.add(vb_resolutions)
         fr_resolutions.show()
 
+        # Client frame
+        self.rb_ytdl = gtk.RadioButton(None, "youtube-dl")
+        self.rb_streamlink = gtk.RadioButton(self.rb_ytdl, "streamlink")
+        vb_client = gtk.VBox(False, 1)
+        vb_client.pack_start(self.rb_ytdl, False, False, 1)
+        vb_client.pack_start(self.rb_streamlink, False, False, 1)
+        fr_client = gtk.Frame("Client")
+        fr_client.add(vb_client)
+        fr_client.show_all()
+
         # Player frame
         self.player_init_text = ""
         self.lb_player = gtk.Label("")
@@ -142,6 +152,7 @@ class Gui(gtk.Window):
         vb_right.set_size_request(SIDE_WIDTH, -1)
         vb_right.pack_start(fr_title, False, False, 1)
         vb_right.pack_start(fr_resolutions, True, True, 1)
+        vb_right.pack_start(fr_client, False, False, 1)
         vb_right.pack_start(fr_player, False, False, 1)
         vb_right.show()
 
