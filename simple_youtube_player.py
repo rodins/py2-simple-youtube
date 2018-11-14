@@ -74,7 +74,7 @@ class Player:
             shell=True)
         else:
             subprocess.call(
-            ["lxterminal -e "+self.streamlink+" -p "+self.player+" --player-fifo youtu.be/"+self.video_id+" "+res+" &"],
+            [self.streamlink+" -p "+self.player+" --player-fifo youtu.be/"+self.video_id+" "+res+" &"],
             shell=True)
         gobject.idle_add(self.gui.set_player_text,
                          "Streamlink started")
