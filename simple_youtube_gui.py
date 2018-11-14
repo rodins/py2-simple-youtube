@@ -178,6 +178,18 @@ class Gui(gtk.Window):
         self.images_cache = {}
 
         self.video_id_processor = VideoIdProcessor(self)
+        # Setup client radiobuttons if clients detected
+        is_ytdl = self.video_id_processor.youtube_dl != ""
+        is_streamlink = self.video_id_processor.player.streamlink != ""
+        if is_ytdl:
+            self.rb_ytdl.set_active(True)
+        elif is_streamlink:
+            self.rb_streamlink.set_active(True)
+        else:
+            fr_client.hide()
+
+        vb_client.set_sensitive(is_ytdl and is_streamlink)
+        
         self.is_empty = True
         if API_KEY == "":
             lb_api_key.show()
