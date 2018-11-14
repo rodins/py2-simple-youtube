@@ -48,18 +48,23 @@ class VideoIdProcessor:
                     shell=True)
                 gobject.idle_add(self.gui.show_resolutions_data)
                 for res in formats.split(':')[2].split(','):
-                    title = res.strip()
-                    gobject.idle_add(self.gui.add_to_resolutions_model,
-                                     title,
-                                     title.split(' ')[0])
+                    # TODO: allow audio only with killall button to close player
+                    if res.find('audio') == -1:
+                        title = res.strip()
+                        gobject.idle_add(self.gui.add_to_resolutions_model,
+                                         title,
+                                         title.split(' ')[0])
             except Exception as ex:
                 print ex
                 gobject.idle_add(self.gui.show_resolutions_error)
             
     def play(self, title, res):
         self.player.set_link(self.video_id, title, res)
-        task = PlayerTask(self.player)
-        task.start()
+        if self.gui.rb_ytdl.get_active(): 
+            task = PlayerTask(self.player)
+            task.start()
+        else:
+            self.player.play_stream(res)
         
             
         
