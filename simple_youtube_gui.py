@@ -77,6 +77,13 @@ class Gui(gtk.Window):
         toolbar.insert(self.rtb_date, -1)
         toolbar.insert(self.rtb_views, -1)
 
+        toolbar.insert(gtk.SeparatorToolItem(), -1)
+
+        self.btn_info = gtk.ToggleToolButton(gtk.STOCK_INFO)
+        self.btn_info.set_tooltip_text("Show/hide info")
+        self.btn_info.connect("clicked", self.btn_info_clicked)
+        toolbar.insert(self.btn_info, -1)
+
         # Loading indicator
         self.sp_results = gtk.Spinner()
         self.sp_results.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
@@ -182,17 +189,16 @@ class Gui(gtk.Window):
         fr_player.show_all()
         self.btn_close_player.hide()
 
-        vb_right = gtk.VBox(False, 1)
-        vb_right.set_size_request(SIDE_WIDTH, -1)
-        vb_right.pack_start(fr_title, False, False, 1)
-        vb_right.pack_start(fr_resolutions, True, True, 1)
-        vb_right.pack_start(self.fr_client, False, False, 1)
-        vb_right.pack_start(fr_player, False, False, 1)
-        vb_right.show()
+        self.vb_right = gtk.VBox(False, 1)
+        self.vb_right.set_size_request(SIDE_WIDTH, -1)
+        self.vb_right.pack_start(fr_title, False, False, 1)
+        self.vb_right.pack_start(fr_resolutions, True, True, 1)
+        self.vb_right.pack_start(self.fr_client, False, False, 1)
+        self.vb_right.pack_start(fr_player, False, False, 1)
 
         hbox = gtk.HBox(False, 1)
         hbox.pack_start(self.vb_results, True, True, 1)
-        hbox.pack_start(vb_right, False, False, 1)
+        hbox.pack_start(self.vb_right, False, False, 1)
         hbox.show()
         
         vbox = gtk.VBox(False, 1)
@@ -374,6 +380,8 @@ class Gui(gtk.Window):
     def show_resolutions_loading_indicator(self):
         self.resolutions_store.clear()
         self.btn_close_player.hide()
+        self.vb_right.show()
+        self.btn_info.set_active(True)
         self.set_player_init_text()
         self.sp_resolutions.show()
         self.sp_resolutions.start()
@@ -408,6 +416,9 @@ class Gui(gtk.Window):
 
     def show_close_player_button(self):
         self.btn_close_player.show()
+
+    def btn_info_clicked(self, widget):
+        self.vb_right.set_visible(widget.get_active())
             
     def set_task_stopped(self):
         self.is_task_started = False
