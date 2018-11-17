@@ -167,19 +167,20 @@ class Gui(gtk.Window):
         self.lb_player.set_size_request(SIDE_WIDTH, -1)
         self.lb_player.set_line_wrap(True)
 
-        btn_close_player = gtk.Button()
+        self.btn_close_player = gtk.Button()
         image = gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_BUTTON)
-        btn_close_player.set_image(image)
-        btn_close_player.set_tooltip_text("Close player")
-        btn_close_player.connect("clicked",
-                                 self.btn_close_player_clicked)
+        self.btn_close_player.set_image(image)
+        self.btn_close_player.set_tooltip_text("Close player")
+        self.btn_close_player.connect("clicked",
+                                      self.btn_close_player_clicked)
         
         hb_player = gtk.HBox(False, 1)
         hb_player.pack_start(self.lb_player, True, True, 1)
-        hb_player.pack_end(btn_close_player, False, False, 1)
+        hb_player.pack_end(self.btn_close_player, False, False, 1)
         fr_player = gtk.Frame("Player")
         fr_player.add(hb_player)
         fr_player.show_all()
+        self.btn_close_player.hide()
 
         vb_right = gtk.VBox(False, 1)
         vb_right.set_size_request(SIDE_WIDTH, -1)
@@ -372,6 +373,7 @@ class Gui(gtk.Window):
 
     def show_resolutions_loading_indicator(self):
         self.resolutions_store.clear()
+        self.btn_close_player.hide()
         self.set_player_init_text()
         self.sp_resolutions.show()
         self.sp_resolutions.start()
@@ -403,6 +405,9 @@ class Gui(gtk.Window):
 
     def btn_close_player_clicked(self, widget):
         self.video_id_processor.player.kill()
+
+    def show_close_player_button(self):
+        self.btn_close_player.show()
             
     def set_task_stopped(self):
         self.is_task_started = False

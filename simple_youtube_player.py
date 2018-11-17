@@ -64,6 +64,7 @@ class Player:
         else:
             subprocess.call([self.player + " \"" + link + "\" &"],
                             shell=True)
+            gobject.idle_add(self.gui.show_close_player_button())
         gobject.idle_add(self.gui.set_player_text,
                          "Player started")
 
@@ -78,6 +79,7 @@ class Player:
             subprocess.call(
             [self.streamlink+" -p "+self.player+" --player-fifo http://youtu.be/"+self.video_id+" "+res+" &"],
             shell=True)
+            gobject.idle_add(self.gui.show_close_player_button())
         gobject.idle_add(self.gui.set_player_text,
                          "Streamlink started")
         
