@@ -49,12 +49,10 @@ class VideoIdProcessor:
                     shell=True)
                 gobject.idle_add(self.gui.show_resolutions_data)
                 for res in formats.split(':')[2].split(','):
-                    # TODO: allow audio only with killall button to close player
-                    if res.find('audio') == -1:
-                        title = res.strip()
-                        gobject.idle_add(self.gui.add_to_resolutions_model,
-                                         title,
-                                         title.split(' ')[0])
+                    title = res.strip()
+                    gobject.idle_add(self.gui.add_to_resolutions_model,
+                                     title,
+                                     title.split(' ')[0])
             except Exception as ex:
                 print ex
                 gobject.idle_add(self.gui.show_resolutions_error)

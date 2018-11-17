@@ -15,7 +15,7 @@ class Player:
             try:
                 subprocess.check_call(["which", player])
                 self.player = player
-                self.gui.set_player_init_text("Detected: " + player)
+                self.gui.set_player_init_text(player)
                 break
             except:
                 self.gui.set_player_init_text("Not detected")
@@ -25,7 +25,9 @@ class Player:
         except Exception as ex:
             print ex
             self.streamlink = ""
-        
+
+    def kill(self):
+        subprocess.call(['killall', self.player])
             
     def set_link(self, video_id, title, res):
         self.video_id = video_id
