@@ -6,6 +6,7 @@ import gobject
 
 import os
 import sys
+import locale
 
 from search_net import SearchNet
 from search_task import SearchTask
@@ -172,7 +173,8 @@ class Gui(gtk.Window):
         self.show()
         
         self.is_task_started = False
-        self.search_net = SearchNet(API_KEY, self)
+        loc = locale.getlocale()
+        self.search_net = SearchNet(API_KEY, self, loc)
 
         self.images_indices = set()
         self.images_cache = {}

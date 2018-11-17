@@ -8,13 +8,21 @@ import urllib2
 from search_parser import SearchParser
 
 class SearchNet:
-    def __init__(self, api_key, gui):
+    def __init__(self, api_key, gui, loc):
         self.parser = SearchParser(gui)
         self.gui = gui
         self.API_DOMAIN = "https://www.googleapis.com/youtube/v3/search?"
         self.API_KEY = api_key
         self.page_token = ""
         self.query = ""
+        try:
+            locale = loc[0].split('_')
+            self.language = locale[0]
+            self.country = locale[1]
+        except:
+            self.language = ""
+            self.country = ""
+            
 
     def set_query(self, query):
         self.query = query
@@ -27,6 +35,10 @@ class SearchNet:
         data['maxResults'] = '15'
         data['q'] = self.query
         data['type'] = 'video'
+        if self.language != "":
+            data['relevanceLanguage'] = self.language
+        if self.country != "":
+            data['regionCode'] = self.country
         #thumbnails/medium/url default
         data['fields'] = 'items(id/videoId,snippet(thumbnails/default/url,title)),nextPageToken'
         data['key'] = self.API_KEY
