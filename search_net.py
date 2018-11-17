@@ -22,6 +22,7 @@ class SearchNet:
         except:
             self.language = ""
             self.country = ""
+        self.order = 'date'
             
 
     def set_query(self, query):
@@ -31,7 +32,7 @@ class SearchNet:
     def build_search_link(self):
         data = {}
         data['part'] = 'snippet'
-        data['order'] = 'date'
+        data['order'] = self.order
         data['maxResults'] = '15'
         data['q'] = self.query
         data['type'] = 'video'

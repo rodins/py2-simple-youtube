@@ -56,6 +56,27 @@ class Gui(gtk.Window):
         entry_item.add(entry)
         toolbar.insert(entry_item, -1)
 
+        date_icon = gtk.Image()
+        date_icon.set_from_file(os.path.join(sys.path[0], 
+                                                "images", 
+                                                "calendar-24.png"))
+
+        views_icon = gtk.Image()
+        views_icon.set_from_file(os.path.join(sys.path[0], 
+                                                "images", 
+                                                "eye-24.png"))
+
+        self.rtb_date = gtk.RadioToolButton()
+        self.rtb_date.set_icon_widget(date_icon)
+        self.rtb_date.set_tooltip_text("Sort by date")
+        
+        self.rtb_views = gtk.RadioToolButton(self.rtb_date)
+        self.rtb_views.set_icon_widget(views_icon)
+        self.rtb_views.set_tooltip_text("Sort by views")
+        
+        toolbar.insert(self.rtb_date, -1)
+        toolbar.insert(self.rtb_views, -1)
+
         # Loading indicator
         self.sp_results = gtk.Spinner()
         self.sp_results.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
@@ -222,6 +243,10 @@ class Gui(gtk.Window):
     def start_search_task(self):
         self.is_empty = True
         self.is_task_started = True
+        if self.rtb_views.get_active():
+            self.search_net.order = 'viewCount'
+        else:
+            self.search_net.order = 'date'
         search_task = SearchTask(self.search_net)
         search_task.start()
         
