@@ -49,6 +49,14 @@ class Gui(gtk.Window):
         toolbar = gtk.Toolbar()
         toolbar.set_style(gtk.TOOLBAR_ICONS)
 
+        self.btn_refresh = gtk.ToolButton(gtk.STOCK_REFRESH)
+        self.btn_refresh.set_tooltip_text("Update results")
+        self.btn_refresh.connect("clicked", self.btn_refresh_clicked)
+        self.btn_refresh.set_sensitive(False)
+        toolbar.insert(self.btn_refresh, -1)
+        
+        toolbar.insert(gtk.SeparatorToolItem(), -1)
+
         entry_item = gtk.ToolItem()
         entry = gtk.Entry()
         entry.set_tooltip_text("Search youtube")
@@ -245,7 +253,7 @@ class Gui(gtk.Window):
 
     def create_tree_view(self):
         tree_view = gtk.TreeView()
-        
+    
         renderer_pixbuf = gtk.CellRendererPixbuf()
         column = gtk.TreeViewColumn("Image", renderer_pixbuf, pixbuf=0)
         tree_view.append_column(column)
@@ -261,17 +269,20 @@ class Gui(gtk.Window):
     def start_search_task(self):
         self.is_empty = True
         self.is_task_started = True
+        search_task = SearchTask(self.search_net)
+        search_task.start()
+
+    def set_search_order(self):
         if self.rtb_views.get_active():
             self.search_net.order = 'viewCount'
         else:
             self.search_net.order = 'date'
-        search_task = SearchTask(self.search_net)
-        search_task.start()
         
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
             self.results_title = "Search: " + query
+            self.set_search_order()
             self.clear_results_model()
             self.search_net.set_query(query)
             self.start_search_task()
@@ -331,6 +342,7 @@ class Gui(gtk.Window):
 
     def show_results_loading_indicator(self, is_paging):
         self.set_results_title("Loading...")
+        self.btn_refresh.set_sensitive(False)
         self.sp_results.show()
         self.sp_results.start()
         self.sw_results.set_visible(is_paging)
@@ -342,6 +354,7 @@ class Gui(gtk.Window):
         self.hb_results_error.hide()
 
     def show_results_data(self):
+        self.btn_refresh.set_sensitive(True)
         self.set_results_title()
         self.sp_results.hide()
         self.sp_results.stop()
@@ -419,6 +432,12 @@ class Gui(gtk.Window):
 
     def btn_info_clicked(self, widget):
         self.vb_right.set_visible(widget.get_active())
+
+    def btn_refresh_clicked(self, widget):
+        self.set_search_order()
+        self.clear_results_model()
+        self.search_net.page_token = ""
+        self.start_search_task()
             
     def set_task_stopped(self):
         self.is_task_started = False
