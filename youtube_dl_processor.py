@@ -27,14 +27,15 @@ class VideoIdProcessor:
                     shell=True)
                 gobject.idle_add(self.gui.show_resolutions_data)
                 for line in formats.splitlines():
-                    if (line.find("only") == -1
+                    if (line.find('only') == -1
                     and line.find(self.video_id) == -1
-                    and line.find("format") == -1):
+                    and line.find('format') == -1):
                         columns = line.split()
                         title = columns[1] + " " + columns[2]
-                        gobject.idle_add(self.gui.add_to_resolutions_model,
-                                         title,
-                                         columns[0])
+                        if title.find('webm') == -1:
+                            gobject.idle_add(self.gui.add_to_resolutions_model,
+                                             title,
+                                             columns[0])
             except Exception as ex:
                 print ex
                 gobject.idle_add(self.gui.show_resolutions_error)
