@@ -7,6 +7,7 @@ class SavedResults:
         self.query = ""
         self.page_token = ""
         self.position = ""
+        self.order = ""
 
 class ResultsHistory:
     def __init__(self, gui):
@@ -21,6 +22,7 @@ class ResultsHistory:
         saved_results.query = self.gui.search_net.query
         saved_results.page_token = self.gui.search_net.page_token
         saved_results.position = self.gui.get_results_position()
+        saved_results.order = self.gui.search_net.order
         return saved_results
 
     def restore_from_saved_results(self, saved_results):
@@ -33,6 +35,7 @@ class ResultsHistory:
         self.gui.search_net.query = saved_results.query
         self.gui.search_net.page_token = saved_results.page_token
         self.gui.set_results_position(saved_results.position)
+        self.gui.restore_search_order(saved_results.order)
 
     def update_prev_next_buttons(self):
         prev_size = len(self.back_stack)

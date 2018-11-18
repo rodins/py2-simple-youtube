@@ -291,6 +291,17 @@ class Gui(gtk.Window):
         search_task = SearchTask(self.search_net)
         search_task.start()
 
+    def restore_search_order(self, order):
+        self.search_net.order = order
+        if order == 'viewCount':
+            self.rtb_views.set_active(True)
+        elif order == 'date':
+            self.rtb_date.set_active(True)
+
+    def is_order_not_matches(self):
+        return not (self.rtb_views.get_active() and self.search_net.order == 'viewCount'
+                 or self.rtb_date.get_active() and self.search_net.order == 'date')
+
     def set_search_order(self):
         if self.rtb_views.get_active():
             self.search_net.order = 'viewCount'
@@ -300,16 +311,17 @@ class Gui(gtk.Window):
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
-            if self.search_net.query != query:
+            if self.search_net.query != query or self.is_order_not_matches():
                 self.results_history.save_on_new_search()
                 self.create_new_results_model()
                 self.set_results_model()
                 self.results_title = "Search: " + query
                 self.search_net.set_query(query)
+                self.set_search_order()
             else:
                 self.results_store.clear()
-            self.set_search_order()
             self.images_indices.clear()
+            self.search_net.page_token = ""
             self.start_search_task()
 
     def on_results_scroll_to_bottom(self, adj):
