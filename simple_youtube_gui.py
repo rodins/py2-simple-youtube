@@ -307,22 +307,25 @@ class Gui(gtk.Window):
             self.search_net.order = 'viewCount'
         else:
             self.search_net.order = 'date'
+
+    def get_search_data(self, query):
+        if self.search_net.query != query or self.is_order_not_matches():
+            self.results_history.save_on_new_search()
+            self.create_new_results_model()
+            self.set_results_model()
+            self.results_title = "Search: " + query
+            self.search_net.set_query(query)
+            self.set_search_order()
+        else:
+            self.results_store.clear()
+        self.images_indices.clear()
+        self.search_net.page_token = ""
+        self.start_search_task()
         
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
-            if self.search_net.query != query or self.is_order_not_matches():
-                self.results_history.save_on_new_search()
-                self.create_new_results_model()
-                self.set_results_model()
-                self.results_title = "Search: " + query
-                self.search_net.set_query(query)
-                self.set_search_order()
-            else:
-                self.results_store.clear()
-            self.images_indices.clear()
-            self.search_net.page_token = ""
-            self.start_search_task()
+            self.get_search_data(query)
 
     def on_results_scroll_to_bottom(self, adj):
         value = adj.get_value()
@@ -471,11 +474,7 @@ class Gui(gtk.Window):
         self.vb_right.set_visible(widget.get_active())
 
     def btn_refresh_clicked(self, widget):
-        self.set_search_order()
-        self.results_store.clear()
-        self.images_indices.clear()
-        self.search_net.page_token = ""
-        self.start_search_task()
+        self.get_search_data(self.search_net.query)
 
     def btn_prev_clicked(self, widget):
         self.results_history.btn_prev_clicked()
