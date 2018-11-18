@@ -13,6 +13,7 @@ from search_task import SearchTask
 from image_task import ImageTask
 from youtube_dl_processor import VideoIdProcessor
 from resolutions_task import ResolutionsTask
+from results_history import ResultsHistory
 
 EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
                                                          "images",
@@ -54,6 +55,18 @@ class Gui(gtk.Window):
         self.btn_refresh.connect("clicked", self.btn_refresh_clicked)
         self.btn_refresh.set_sensitive(False)
         toolbar.insert(self.btn_refresh, -1)
+
+        toolbar.insert(gtk.SeparatorToolItem(), -1)
+        
+        self.btn_prev = gtk.ToolButton(gtk.STOCK_GO_BACK)
+        self.btn_prev.connect("clicked", self.btn_prev_clicked)
+        self.btn_prev.set_sensitive(False)
+        toolbar.insert(self.btn_prev, -1)
+        
+        self.btn_next = gtk.ToolButton(gtk.STOCK_GO_FORWARD)
+        self.btn_next.connect("clicked", self.btn_next_clicked)
+        self.btn_next.set_sensitive(False)
+        toolbar.insert(self.btn_next, -1)
         
         toolbar.insert(gtk.SeparatorToolItem(), -1)
 
@@ -101,9 +114,6 @@ class Gui(gtk.Window):
         self.iv_results.set_pixbuf_column(COL_PIXBUF)
         self.iv_results.set_text_column(COL_TEXT)
         self.iv_results.set_item_width(ICON_VIEW_ITEM_WIDTH)
-
-        self.results_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str, str)
-        self.iv_results.set_model(self.results_store)
         
         self.sw_results = self.create_scrolled_window()
         self.sw_results.add(self.iv_results)
@@ -238,6 +248,9 @@ class Gui(gtk.Window):
             self.fr_client.hide()
 
         vb_client.set_sensitive(is_ytdl and is_streamlink)
+
+        self.results_store = None
+        self.results_history = ResultsHistory(self)
         
         self.is_empty = True
         if API_KEY == "":
@@ -266,6 +279,12 @@ class Gui(gtk.Window):
         
         return tree_view
 
+    def create_new_results_model(self):
+        self.results_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str, str)
+
+    def set_results_model(self):
+        self.iv_results.set_model(self.results_store)
+
     def start_search_task(self):
         self.is_empty = True
         self.is_task_started = True
@@ -281,10 +300,16 @@ class Gui(gtk.Window):
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
-            self.results_title = "Search: " + query
+            if self.search_net.query != query:
+                self.results_history.save_on_new_search()
+                self.create_new_results_model()
+                self.set_results_model()
+                self.results_title = "Search: " + query
+                self.search_net.set_query(query)
+            else:
+                self.results_store.clear()
             self.set_search_order()
-            self.clear_results_model()
-            self.search_net.set_query(query)
+            self.images_indices.clear()
             self.start_search_task()
 
     def on_results_scroll_to_bottom(self, adj):
@@ -435,9 +460,26 @@ class Gui(gtk.Window):
 
     def btn_refresh_clicked(self, widget):
         self.set_search_order()
-        self.clear_results_model()
+        self.results_store.clear()
+        self.images_indices.clear()
         self.search_net.page_token = ""
         self.start_search_task()
+
+    def btn_prev_clicked(self, widget):
+        self.results_history.btn_prev_clicked()
+
+    def btn_next_clicked(self, widget):
+        self.results_history.btn_next_clicked()
+
+    def get_results_position(self):
+        visible_range = self.iv_results.get_visible_range()
+        if visible_range != None:
+            return visible_range[1][0] # use index_to as position
+        return None
+
+    def set_results_position(self, position):
+        if position != None:
+            self.iv_results.scroll_to_path(position, False, 0, 0)
             
     def set_task_stopped(self):
         self.is_task_started = False
