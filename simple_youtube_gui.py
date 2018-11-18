@@ -58,6 +58,7 @@ class Gui(gtk.Window):
         self.btn_saved_items = gtk.ToggleToolButton()
         self.btn_saved_items.set_icon_widget(bookmark_icon)
         self.btn_saved_items.set_tooltip_text("Show/hide bookmarks")
+        self.btn_saved_items.set_sensitive(False)
         self.btn_saved_items.connect("clicked", self.btn_saved_items_clicked)
         toolbar.insert(self.btn_saved_items, -1)
         
@@ -189,6 +190,20 @@ class Gui(gtk.Window):
         fr_resolutions.add(vb_resolutions)
         fr_resolutions.show()
 
+        # Save/delete buttons
+        hb_actions = gtk.HBox(False, 1)
+        self.btn_save = gtk.Button("Save")
+        self.btn_delete = gtk.Button("Delete")
+        
+        self.btn_save.connect("clicked", self.btn_save_clicked)
+        self.btn_delete.connect("clicked", self.btn_delete_clicked)
+        
+        hb_actions.pack_start(self.btn_save, True, False, 1)
+        hb_actions.pack_start(self.btn_delete, True, False, 1)
+        self.btn_save.show()
+        self.btn_save.set_sensitive(False)
+        hb_actions.show()
+
         # Client frame
         self.rb_ytdl = gtk.RadioButton(None, "youtube-dl")
         self.rb_streamlink = gtk.RadioButton(self.rb_ytdl, "streamlink")
@@ -224,6 +239,7 @@ class Gui(gtk.Window):
         self.vb_right.set_size_request(SIDE_WIDTH, -1)
         self.vb_right.pack_start(fr_title, False, False, 1)
         self.vb_right.pack_start(fr_resolutions, True, True, 1)
+        self.vb_right.pack_start(hb_actions, False, False, 1)
         self.vb_right.pack_start(self.fr_client, False, False, 1)
         self.vb_right.pack_start(fr_player, False, False, 1)
 
@@ -497,6 +513,16 @@ class Gui(gtk.Window):
 
     def btn_saved_items_clicked(self, widget):
         print "Saved items clicked"
+
+    def btn_save_clicked(self, widget):
+        print "Save clicked"
+        self.btn_save.hide()
+        self.btn_delete.show()
+
+    def btn_delete_clicked(self, widget):
+        print "Delete clicked"
+        self.btn_delete.hide()
+        self.btn_save.show()
 
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
