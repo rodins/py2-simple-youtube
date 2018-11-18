@@ -50,6 +50,19 @@ class Gui(gtk.Window):
         toolbar = gtk.Toolbar()
         toolbar.set_style(gtk.TOOLBAR_ICONS)
 
+        bookmark_icon = gtk.Image()
+        bookmark_icon.set_from_file(os.path.join(sys.path[0], 
+                                                "images", 
+                                                "bookmark_24.png"))
+        
+        self.btn_saved_items = gtk.ToggleToolButton()
+        self.btn_saved_items.set_icon_widget(bookmark_icon)
+        self.btn_saved_items.set_tooltip_text("Show/hide bookmarks")
+        self.btn_saved_items.connect("clicked", self.btn_saved_items_clicked)
+        toolbar.insert(self.btn_saved_items, -1)
+        
+        toolbar.insert(gtk.SeparatorToolItem(), -1)
+
         self.btn_refresh = gtk.ToolButton(gtk.STOCK_REFRESH)
         self.btn_refresh.set_tooltip_text("Update results")
         self.btn_refresh.connect("clicked", self.btn_refresh_clicked)
@@ -481,6 +494,9 @@ class Gui(gtk.Window):
 
     def btn_next_clicked(self, widget):
         self.results_history.btn_next_clicked()
+
+    def btn_saved_items_clicked(self, widget):
+        print "Saved items clicked"
 
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
