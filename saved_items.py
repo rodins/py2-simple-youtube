@@ -73,11 +73,12 @@ class SavedItems:
         if os.path.exists(path):
             os.remove(path)
     
-    def list_saved_files(self, button_click = False):
+    def list_saved_files(self, button_click = False, on_start = False):
         try:
             saves = os.listdir(APP_SAVES_DIR)
             if len(saves) > 0:
-                #self.btn_saved_items.set_active(True) # uncomment if show on start
+                if on_start:
+                    self.gui.btn_saved_items.set_active(True)
                 self.gui.btn_saved_items.set_sensitive(True)
             else:
                 self.gui.btn_saved_items.set_sensitive(False)
@@ -107,8 +108,8 @@ class SavedItems:
                 if self.saved_items_position == None:
                     self.gui.scroll_to_top_of_list(self.saved_items_store)
                 else:
-                    self.iv_results.scroll_to_path(self.saved_items_position,
-                                                   False, 0, 0)
+                    self.gui.iv_results.scroll_to_path(self.saved_items_position,
+                                                       False, 0, 0)
             elif button_click: # Switch back to results
                 self.preserve_saved_items_position()
                 

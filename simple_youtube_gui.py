@@ -281,7 +281,7 @@ class Gui(gtk.Window):
         self.results_history = ResultsHistory(self)
 
         self.saved_items = SavedItems(self)
-        self.saved_items.list_saved_files()
+        self.saved_items.list_saved_files(False, True)
         
         self.is_empty = True
         if API_KEY == "":
