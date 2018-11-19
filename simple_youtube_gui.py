@@ -14,13 +14,7 @@ from image_task import ImageTask
 from youtube_dl_processor import VideoIdProcessor
 from resolutions_task import ResolutionsTask
 from results_history import ResultsHistory
-
-EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
-                                                         "images",
-                                                         "blank_default.png"))
-YOUTUBE_PIXBUF = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
-                                                         "images",
-                                                         "youtube_16.png"))
+from saved_items import SavedItems
 
 PROG_NAME = "Simple youtube"
 COL_PIXBUF = 0
@@ -40,6 +34,13 @@ class Gui(gtk.Window):
             self.set_icon_from_file(os.path.join(sys.path[0],
                                                  "images", 
                                                  "youtube.png"))
+            
+            self.EMPTY_POSTER = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
+                                                             "images",
+                                                             "blank_default.png"))
+            self.YOUTUBE_PIXBUF = gtk.gdk.pixbuf_new_from_file(os.path.join(sys.path[0],
+                                                               "images",
+                                                               "youtube_16.png"))
         except Exception, e:
             print e.message
 
@@ -200,8 +201,6 @@ class Gui(gtk.Window):
         
         hb_actions.pack_start(self.btn_save, True, False, 1)
         hb_actions.pack_start(self.btn_delete, True, False, 1)
-        self.btn_save.show()
-        self.btn_save.set_sensitive(False)
         hb_actions.show()
 
         # Client frame
@@ -280,6 +279,9 @@ class Gui(gtk.Window):
 
         self.results_store = None
         self.results_history = ResultsHistory(self)
+
+        self.saved_items = SavedItems(self)
+        self.saved_items.list_saved_files()
         
         self.is_empty = True
         if API_KEY == "":
@@ -354,9 +356,12 @@ class Gui(gtk.Window):
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
+            self.saved_items.on_search_started()
             self.get_search_data(query)
 
     def on_results_scroll_to_bottom(self, adj):
+        if self.btn_saved_items.get_active():
+            return
         value = adj.get_value()
         upper = adj.get_upper()
         page_size = adj.get_page_size()
@@ -365,6 +370,8 @@ class Gui(gtk.Window):
             self.start_search_task()
 
     def on_results_draw(self, widget, event):
+        if self.btn_saved_items.get_active():
+            return
         visible_range = self.iv_results.get_visible_range()
         if visible_range != None:
             index_from = visible_range[0][0]
@@ -391,8 +398,12 @@ class Gui(gtk.Window):
     def on_result_activated(self, iconview, path):
         store = iconview.get_model()
         results_iter = store.get_iter(path)
-        self.lb_title.set_text(store.get_value(results_iter, 1))
-        self.video_id_processor.video_id = store.get_value(results_iter, 2)
+        pixbuf = store.get_value(results_iter, 0)
+        title = store.get_value(results_iter, 1)
+        video_id = store.get_value(results_iter, 2)
+        self.lb_title.set_text(title)
+        self.video_id_processor.video_id = video_id
+        self.saved_items.set_data(pixbuf, title, video_id)
         self.start_resolutions_task()
 
     def btn_results_error_clicked(self, widget):
@@ -454,7 +465,7 @@ class Gui(gtk.Window):
                                        video_id,
                                        image_url])
         else:
-            self.results_store.append([EMPTY_POSTER,
+            self.results_store.append([self.EMPTY_POSTER,
                                        title,
                                        video_id,
                                        image_url])
@@ -483,7 +494,7 @@ class Gui(gtk.Window):
         self.btn_resolutions_error.show()
 
     def add_to_resolutions_model(self, title, code):
-        self.resolutions_store.append([YOUTUBE_PIXBUF, title, code])
+        self.resolutions_store.append([self.YOUTUBE_PIXBUF, title, code])
 
     def set_player_init_text(self, text=""):
         if text != "":
@@ -512,17 +523,13 @@ class Gui(gtk.Window):
         self.results_history.btn_next_clicked()
 
     def btn_saved_items_clicked(self, widget):
-        print "Saved items clicked"
+        self.saved_items.btn_saved_items_clicked()
 
     def btn_save_clicked(self, widget):
-        print "Save clicked"
-        self.btn_save.hide()
-        self.btn_delete.show()
+        self.saved_items.btn_save_clicked()
 
     def btn_delete_clicked(self, widget):
-        print "Delete clicked"
-        self.btn_delete.hide()
-        self.btn_save.show()
+        self.saved_items.btn_delete_clicked()
 
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
@@ -533,6 +540,12 @@ class Gui(gtk.Window):
     def set_results_position(self, position):
         if position != None:
             self.iv_results.scroll_to_path(position, False, 0, 0)
+
+    def scroll_to_top_of_list(self, store):
+        if store != None:
+            first_iter = store.get_iter_first()
+            first_path = store.get_path(first_iter)
+            self.iv_results.scroll_to_path(first_path, False, 0, 0)
             
     def set_task_stopped(self):
         self.is_task_started = False
