@@ -577,7 +577,10 @@ class Gui(gtk.Window):
         self.start_categories_task()
 
     def on_categories_activated(self, treeview, path, view_column):
-        print "On categories activated"
+        categories_iter = self.categories_store.get_iter(path)
+        values = self.categories_store.get(categories_iter, 1, 2)
+        print "Title: " + values[0]
+        print "Id: " + values[1]
 
     def show_categories_loading_indicator(self):
         self.categories_store.clear()
@@ -597,7 +600,7 @@ class Gui(gtk.Window):
         self.btn_categories_error.show()
 
     def add_to_categories_model(self, title, category_id):
-        self.categories_store.append([self.YOUTUBE_PIXBUF, title, id])
+        self.categories_store.append([self.YOUTUBE_PIXBUF, title, category_id])
 
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
