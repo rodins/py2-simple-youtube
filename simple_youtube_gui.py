@@ -50,6 +50,13 @@ class Gui(gtk.Window):
         # Toolbar and it's items
         toolbar = gtk.Toolbar()
         toolbar.set_style(gtk.TOOLBAR_ICONS)
+        
+        #TODO: change categories image
+        btn_categories = gtk.ToggleToolButton(gtk.STOCK_DIRECTORY)
+        btn_categories.set_tooltip_text("Show/hide categories")
+        btn_categories.connect("clicked", self.btn_categories_clicked)
+        toolbar.insert(btn_categories, -1)
+        toolbar.insert(gtk.SeparatorToolItem(), -1)
 
         bookmark_icon = gtk.Image()
         bookmark_icon.set_from_file(os.path.join(sys.path[0], 
@@ -242,7 +249,31 @@ class Gui(gtk.Window):
         self.vb_right.pack_start(self.fr_client, False, False, 1)
         self.vb_right.pack_start(fr_player, False, False, 1)
 
+        # Categories
+        self.sp_categories = gtk.Spinner()
+        self.sp_categories.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
+
+        self.btn_categories_error = gtk.Button("Repeat")
+        self.btn_categories_error.connect("clicked",
+                                           self.btn_categories_error_clicked)
+
+        tv_categories = self.create_tree_view()
+        self.categories_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
+        tv_categories.set_model(self.categories_store)
+        tv_categories.connect("row-activated", self.on_categories_activated)
+
+        self.sw_categories = self.create_scrolled_window()
+        self.sw_categories.add(tv_categories)
+        self.sw_categories.show_all()
+
+        self.vb_categories = gtk.VBox(False, 1)
+        self.vb_categories.set_size_request(SIDE_WIDTH, -1)
+        self.vb_categories.pack_start(self.sp_categories, True, False, 1)
+        self.vb_categories.pack_start(self.sw_categories, True, True, 1)
+        self.vb_categories.pack_start(self.btn_categories_error, True, False, 1)
+
         hbox = gtk.HBox(False, 1)
+        hbox.pack_start(self.vb_categories, False, False, 1)
         hbox.pack_start(self.vb_results, True, True, 1)
         hbox.pack_start(self.vb_right, False, False, 1)
         hbox.show()
@@ -456,7 +487,6 @@ class Gui(gtk.Window):
         self.results_store.clear()
         self.images_indices.clear()
 
-    
     def add_to_results_model(self, title, video_id, image_url):
         self.is_empty = False
         if image_url in self.images_cache:
@@ -530,6 +560,36 @@ class Gui(gtk.Window):
 
     def btn_delete_clicked(self, widget):
         self.saved_items.btn_delete_clicked()
+
+    def btn_categories_clicked(self, widget):
+        self.vb_categories.set_visible(widget.get_active())
+        if widget.get_active():
+            self.show_categories_loading_indicator()
+        else:
+            self.show_categories_data()
+            
+
+    def btn_categories_error_clicked(self, widget):
+        print "Categories error clicked"
+
+    def on_categories_activated(self, treeview, path, view_column):
+        print "On categories activated"
+
+    def show_categories_loading_indicator(self):
+        self.sp_categories.show()
+        self.sp_categories.start()
+        self.sw_categories.hide()
+        self.btn_categories_error.hide()
+
+    def show_categories_data(self):
+        self.sp_categories.hide()
+        self.sp_categories.stop()
+        self.sw_categories.show()
+
+    def show_categories_error(self):
+        self.sp_categories.hide()
+        self.sp_categories.stop()
+        self.btn_categories_error.show()
 
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
