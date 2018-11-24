@@ -9,6 +9,7 @@ import sys
 import locale
 
 from search_net import SearchNet
+from categories_net import CategoriesNet
 from search_task import SearchTask
 from image_task import ImageTask
 from youtube_dl_processor import VideoIdProcessor
@@ -291,6 +292,7 @@ class Gui(gtk.Window):
         self.is_task_started = False
         loc = locale.getlocale()
         self.search_net = SearchNet(API_KEY, self, loc)
+        self.categories_net = CategoriesNet(API_KEY, self, loc)
 
         self.images_indices = set()
         self.images_cache = {}
@@ -318,6 +320,7 @@ class Gui(gtk.Window):
         if API_KEY == "":
             lb_api_key.show()
             self.sw_results.hide()
+            self.btn_categories.set_sensitive(False)
         
 
     def create_scrolled_window(self):
@@ -561,21 +564,23 @@ class Gui(gtk.Window):
     def btn_delete_clicked(self, widget):
         self.saved_items.btn_delete_clicked()
 
+    def start_categories_task(self):
+        search_task = SearchTask(self.categories_net)
+        search_task.start()
+
     def btn_categories_clicked(self, widget):
         self.vb_categories.set_visible(widget.get_active())
-        if widget.get_active():
-            self.show_categories_loading_indicator()
-        else:
-            self.show_categories_data()
+        if widget.get_active() and self.categories_net.parser.is_empty:
+            self.start_categories_task()
             
-
     def btn_categories_error_clicked(self, widget):
-        print "Categories error clicked"
+        self.start_categories_task()
 
     def on_categories_activated(self, treeview, path, view_column):
         print "On categories activated"
 
     def show_categories_loading_indicator(self):
+        self.categories_store.clear()
         self.sp_categories.show()
         self.sp_categories.start()
         self.sw_categories.hide()
@@ -590,6 +595,9 @@ class Gui(gtk.Window):
         self.sp_categories.hide()
         self.sp_categories.stop()
         self.btn_categories_error.show()
+
+    def add_to_categories_model(self, title, category_id):
+        self.categories_store.append([self.YOUTUBE_PIXBUF, title, id])
 
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
