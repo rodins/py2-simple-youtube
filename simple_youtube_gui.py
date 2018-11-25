@@ -610,10 +610,12 @@ class Gui(gtk.Window):
         self.sp_categories.hide()
         self.sp_categories.stop()
         self.sw_categories.show()
+        self.btn_categories_error.hide()
 
     def show_categories_error(self):
         self.sp_categories.hide()
         self.sp_categories.stop()
+        self.sw_categories.hide()
         self.btn_categories_error.show()
 
     def add_to_categories_model(self, title, category_id):
