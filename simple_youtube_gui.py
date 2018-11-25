@@ -363,9 +363,19 @@ class Gui(gtk.Window):
         elif order == 'date':
             self.rtb_date.set_active(True)
 
-    def is_order_not_matches(self):
-        return not (self.rtb_views.get_active() and self.search_net.order == 'viewCount'
+    def is_order_matches(self):
+        return (self.rtb_views.get_active() and self.search_net.order == 'viewCount'
                  or self.rtb_date.get_active() and self.search_net.order == 'date')
+
+    def is_search_the_same(self, query):
+        if query == '':
+            return True
+        return self.search_net.query == query and self.is_order_matches()
+
+    def is_categories_the_same(self, category_id):
+        if category_id == '':
+            return True
+        return self.search_net.category_id == category_id
 
     def set_search_order(self):
         if self.rtb_views.get_active():
@@ -373,16 +383,22 @@ class Gui(gtk.Window):
         else:
             self.search_net.order = 'date'
 
-    def get_search_data(self, query):
-        if self.search_net.query != query or self.is_order_not_matches():
+    def get_search_data(self, query, category_title, category_id):
+        if (not self.is_search_the_same(query)
+            or not self.is_categories_the_same(category_id)):
             self.results_history.save_on_new_search()
             self.create_new_results_model()
             self.set_results_model()
-            self.results_title = "Search: " + query
-            self.search_net.set_query(query)
-            self.set_search_order()
+            if query != '':
+                self.results_title = "Search: " + query
+                self.search_net.set_query(query)
+                self.set_search_order()
+            elif category_id != '':
+                self.results_title = category_title
+                self.search_net.set_category_id(category_id)
         else:
             self.results_store.clear()
+        self.saved_items.on_search_started()
         self.images_indices.clear()
         self.search_net.page_token = ""
         self.start_search_task()
@@ -390,8 +406,7 @@ class Gui(gtk.Window):
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
-            self.saved_items.on_search_started()
-            self.get_search_data(query)
+            self.get_search_data(query, '', '')
 
     def on_results_scroll_to_bottom(self, adj):
         if self.btn_saved_items.get_active():
@@ -547,7 +562,8 @@ class Gui(gtk.Window):
         self.vb_right.set_visible(widget.get_active())
 
     def btn_refresh_clicked(self, widget):
-        self.get_search_data(self.search_net.query)
+        self.get_search_data(self.search_net.query, '',
+                             self.search_net.category_id)
 
     def btn_prev_clicked(self, widget):
         self.results_history.btn_prev_clicked()
@@ -579,8 +595,9 @@ class Gui(gtk.Window):
     def on_categories_activated(self, treeview, path, view_column):
         categories_iter = self.categories_store.get_iter(path)
         values = self.categories_store.get(categories_iter, 1, 2)
-        print "Title: " + values[0]
-        print "Id: " + values[1]
+        category_title = values[0]
+        category_id = values[1]
+        self.get_search_data('', category_title, category_id)
 
     def show_categories_loading_indicator(self):
         self.categories_store.clear()
