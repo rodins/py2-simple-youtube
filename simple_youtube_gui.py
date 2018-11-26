@@ -126,6 +126,7 @@ class Gui(gtk.Window):
         self.btn_info = gtk.ToggleToolButton(gtk.STOCK_INFO)
         self.btn_info.set_tooltip_text("Show/hide info")
         self.btn_info.connect("clicked", self.btn_info_clicked)
+        self.btn_info.set_sensitive(False)
         toolbar.insert(self.btn_info, -1)
 
         # Loading indicator
@@ -175,7 +176,7 @@ class Gui(gtk.Window):
         self.sp_resolutions = gtk.Spinner()
         self.sp_resolutions.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
 
-        self.btn_resolutions_error = gtk.Button("Repeat")
+        self.btn_resolutions_error = gtk.Button("Get links")
         self.btn_resolutions_error.connect("clicked",
                                            self.btn_resolutions_error_clicked)
 
@@ -213,6 +214,7 @@ class Gui(gtk.Window):
 
         # Client frame
         self.rb_ytdl = gtk.RadioButton(None, "youtube-dl")
+        self.rb_ytdl.connect('toggled', self.rb_ytdl_toggled)
         self.rb_streamlink = gtk.RadioButton(self.rb_ytdl, "streamlink")
         vb_client = gtk.VBox(False, 1)
         vb_client.pack_start(self.rb_ytdl, False, False, 1)
@@ -453,7 +455,11 @@ class Gui(gtk.Window):
         self.lb_title.set_text(title)
         self.video_id_processor.video_id = video_id
         self.saved_items.set_data(pixbuf, title, video_id)
-        self.start_resolutions_task()
+        self.show_resolutions_button()
+        self.vb_right.show()
+        self.btn_info.set_sensitive(True)
+        self.btn_info.set_active(True)
+        self.set_player_init_text()
 
     def btn_results_error_clicked(self, widget):
         self.start_search_task()
@@ -519,23 +525,23 @@ class Gui(gtk.Window):
                                        image_url])
 
     def show_resolutions_loading_indicator(self):
+        self.fr_client.set_sensitive(False)
         self.resolutions_store.clear()
         self.btn_close_player.hide()
-        self.vb_right.show()
-        self.btn_info.set_active(True)
-        self.set_player_init_text()
         self.sp_resolutions.show()
         self.sp_resolutions.start()
         self.sw_resolutions.hide()
         self.btn_resolutions_error.hide()
 
     def show_resolutions_data(self):
+        self.fr_client.set_sensitive(True)
         self.sp_resolutions.hide()
         self.sp_resolutions.stop()
         self.sw_resolutions.show()
         self.btn_resolutions_error.hide()
 
-    def show_resolutions_error(self):
+    def show_resolutions_button(self):
+        self.fr_client.set_sensitive(True)
         self.sp_resolutions.hide()
         self.sp_resolutions.stop()
         self.sw_resolutions.hide()
@@ -621,6 +627,9 @@ class Gui(gtk.Window):
     def add_to_categories_model(self, title, category_id):
         self.categories_store.append([self.YOUTUBE_PIXBUF, title, category_id])
 
+    def rb_ytdl_toggled(self, widget):
+        self.show_resolutions_button()
+    
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
         if visible_range != None:

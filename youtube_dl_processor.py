@@ -38,7 +38,7 @@ class VideoIdProcessor:
                                              columns[0])
             except Exception as ex:
                 print ex
-                gobject.idle_add(self.gui.show_resolutions_error)
+                gobject.idle_add(self.gui.show_resolutions_button)
 
     def process_streamlink(self):
         if self.player.streamlink != "":
@@ -55,7 +55,7 @@ class VideoIdProcessor:
                                      title.split(' ')[0])
             except Exception as ex:
                 print ex
-                gobject.idle_add(self.gui.show_resolutions_error)
+                gobject.idle_add(self.gui.show_resolutions_button)
             
     def play(self, title, res):
         self.player.set_link(self.video_id, title, res)
