@@ -176,7 +176,9 @@ class Gui(gtk.Window):
         self.sp_resolutions = gtk.Spinner()
         self.sp_resolutions.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
 
-        self.btn_resolutions_error = gtk.Button("Get links")
+        image = gtk.image_new_from_stock(gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_BUTTON)
+        self.btn_resolutions_error = gtk.Button()
+        self.btn_resolutions_error.set_image(image)
         self.btn_resolutions_error.connect("clicked",
                                            self.btn_resolutions_error_clicked)
 
