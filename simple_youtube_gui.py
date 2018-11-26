@@ -99,7 +99,8 @@ class Gui(gtk.Window):
         entry.connect("activate", self.entry_activated)
         entry_item.add(entry)
         toolbar.insert(entry_item, -1)
-
+        
+        # May use gtk_image_new_from_file
         date_icon = gtk.Image()
         date_icon.set_from_file(os.path.join(sys.path[0], 
                                                 "images", 
@@ -175,7 +176,7 @@ class Gui(gtk.Window):
         # Resolutions
         self.sp_resolutions = gtk.Spinner()
         self.sp_resolutions.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
-
+        
         image = gtk.image_new_from_stock(gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_BUTTON)
         self.btn_resolutions_error = gtk.Button()
         self.btn_resolutions_error.set_image(image)
@@ -203,9 +204,18 @@ class Gui(gtk.Window):
         fr_resolutions.show()
 
         # Save/delete buttons
+        star_icon = gtk.image_new_from_file(os.path.join(sys.path[0], 
+                                                "images", 
+                                                "star-24.png"))
+        star_filled_icon = gtk.image_new_from_file(os.path.join(sys.path[0], 
+                                                "images", 
+                                                "star-filled-24.png"))
+        
         hb_actions = gtk.HBox(False, 1)
-        self.btn_save = gtk.Button("Save")
-        self.btn_delete = gtk.Button("Delete")
+        self.btn_save = gtk.Button()
+        self.btn_save.set_image(star_icon)
+        self.btn_delete = gtk.Button()
+        self.btn_delete.set_image(star_filled_icon)
         
         self.btn_save.connect("clicked", self.btn_save_clicked)
         self.btn_delete.connect("clicked", self.btn_delete_clicked)
