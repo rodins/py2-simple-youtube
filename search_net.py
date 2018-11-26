@@ -43,7 +43,8 @@ class SearchNet:
         data['part'] = 'snippet'
         data['chart'] = 'mostPopular'
         data['maxResults'] = self.max_results
-        data['videoCategoryId'] = self.category_id
+        if self.category_id != '':
+            data['videoCategoryId'] = self.category_id
         if self.language != "":
             data['hl'] = self.language
         if self.country != "":
@@ -80,7 +81,7 @@ class SearchNet:
             if self.query != "":
                 link = self.build_search_url()
                 is_videos = False
-            elif self.category_id != "":
+            else:
                 link = self.build_videos_url()
                 is_videos = True
             is_paging = (self.page_token != "")

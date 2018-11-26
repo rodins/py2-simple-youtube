@@ -57,6 +57,14 @@ class Gui(gtk.Window):
         btn_categories.set_tooltip_text("Show/hide categories")
         btn_categories.connect("clicked", self.btn_categories_clicked)
         toolbar.insert(btn_categories, -1)
+        
+        toolbar.insert(gtk.SeparatorToolItem(), -1)
+
+        btn_home = gtk.ToolButton(gtk.STOCK_HOME)
+        btn_home.set_tooltip_text("Get most popular videos for your country")
+        btn_home.connect("clicked", self.btn_home_clicked)
+        toolbar.insert(btn_home, -1)
+
         toolbar.insert(gtk.SeparatorToolItem(), -1)
 
         bookmark_icon = gtk.Image()
@@ -386,8 +394,10 @@ class Gui(gtk.Window):
             return True
         return self.search_net.query == query and self.is_order_matches()
 
-    def is_categories_the_same(self, category_id):
-        if category_id == '':
+    def is_categories_the_same(self, category_title, category_id):
+        if category_title == 'Home':
+            return False
+        if category_id == '': # Used at refresh
             return True
         return self.search_net.category_id == category_id
 
@@ -399,7 +409,7 @@ class Gui(gtk.Window):
 
     def get_search_data(self, query, category_title, category_id):
         if (not self.is_search_the_same(query)
-            or not self.is_categories_the_same(category_id)):
+            or not self.is_categories_the_same(category_title, category_id)):
             self.results_history.save_on_new_search()
             self.create_new_results_model()
             self.set_results_model()
@@ -407,7 +417,7 @@ class Gui(gtk.Window):
                 self.results_title = "Search: " + query
                 self.search_net.set_query(query)
                 self.set_search_order()
-            elif category_id != '':
+            else:
                 self.results_title = category_title
                 self.search_net.set_category_id(category_id)
         else:
@@ -641,6 +651,9 @@ class Gui(gtk.Window):
 
     def rb_ytdl_toggled(self, widget):
         self.show_resolutions_button()
+
+    def btn_home_clicked(self, widget):
+        self.get_search_data('', 'Home', '')
     
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
