@@ -446,9 +446,11 @@ class Gui(gtk.Window):
             self.results_store.clear()
         self.on_new_and_refresh_common()
 
-    def get_search_data_by_video_id(self, video_id):
+    def get_search_data_by_video_id(self):
+        video_id = self.saved_items.video_id
         if self.search_net.video_id != video_id:
             self.on_new_common()
+            self.results_title = self.saved_items.title
             self.search_net.set_video_id(video_id)
         else:
             self.results_store.clear()
@@ -683,7 +685,7 @@ class Gui(gtk.Window):
         self.get_search_data('', 'Home', '')
 
     def btn_list_video_id_clicked(self, widget):
-        self.get_search_data_by_video_id(self.video_id_processor.video_id)
+        self.get_search_data_by_video_id()
     
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()

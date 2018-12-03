@@ -68,10 +68,10 @@ class SearchNet:
     def build_search_url(self):
         data = {}
         data['part'] = 'snippet'
-        data['order'] = self.order
         data['maxResults'] = self.max_results
         if self.query != '':
             data['q'] = self.query
+            data['order'] = self.order
         if self.video_id != '':
             data['relatedToVideoId'] = self.video_id
         data['type'] = 'video'
