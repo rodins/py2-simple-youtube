@@ -446,6 +446,15 @@ class Gui(gtk.Window):
             self.results_store.clear()
         self.on_new_and_refresh_common()
 
+    def get_search_data_by_category_id(self, category_title, category_id):
+        if not self.is_categories_the_same(category_title, category_id):
+            self.on_new_common()
+            self.results_title = category_title
+            self.search_net.set_category_id(category_id)
+        else:
+            self.results_store.clear()
+        self.on_new_and_refresh_common()
+
     def get_search_data_by_query(self, query):
         if self.search_net.query != query or not self.is_order_matches():
             self.on_new_common()
@@ -664,7 +673,7 @@ class Gui(gtk.Window):
         values = self.categories_store.get(categories_iter, 1, 2)
         category_title = values[0]
         category_id = values[1]
-        self.get_search_data('', category_title, category_id)
+        self.get_search_data_by_category_id(category_title, category_id)
 
     def show_categories_loading_indicator(self):
         self.categories_store.clear()
