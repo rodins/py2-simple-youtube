@@ -446,6 +446,15 @@ class Gui(gtk.Window):
             self.results_store.clear()
         self.on_new_and_refresh_common()
 
+    def get_search_data_for_home(self):
+        if self.results_title != 'Home':
+            self.on_new_common()
+            self.results_title = 'Home'
+            self.search_net.clear()
+        else:
+            self.results_store.clear()
+        self.on_new_and_refresh_common()
+
     def get_search_data_by_category_id(self, category_title, category_id):
         if not self.is_categories_the_same(category_title, category_id):
             self.on_new_common()
@@ -701,7 +710,7 @@ class Gui(gtk.Window):
         self.show_resolutions_button()
 
     def btn_home_clicked(self, widget):
-        self.get_search_data('', 'Home', '')
+        self.get_search_data_for_home()
 
     def btn_list_video_id_clicked(self, widget):
         self.get_search_data_by_video_id()
