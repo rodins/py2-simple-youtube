@@ -446,6 +446,16 @@ class Gui(gtk.Window):
             self.results_store.clear()
         self.on_new_and_refresh_common()
 
+    def get_search_data_by_query(self, query):
+        if self.search_net.query != query or not self.is_order_matches():
+            self.on_new_common()
+            self.results_title = "Search: " + query
+            self.search_net.set_query(query)
+            self.set_search_order()
+        else:
+            self.results_store.clear()
+        self.on_new_and_refresh_common()
+            
     def get_search_data_by_video_id(self):
         video_id = self.saved_items.video_id
         if self.search_net.video_id != video_id:
@@ -459,7 +469,7 @@ class Gui(gtk.Window):
     def entry_activated(self, widget):
         query = widget.get_text().strip()
         if query != "" and not self.is_task_started:
-            self.get_search_data(query, '', '')
+            self.get_search_data_by_query(query)
 
     def on_results_scroll_to_bottom(self, adj):
         if self.btn_saved_items.get_active():
