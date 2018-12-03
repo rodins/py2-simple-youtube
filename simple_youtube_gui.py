@@ -227,7 +227,19 @@ class Gui(gtk.Window):
         
         self.btn_save.connect("clicked", self.btn_save_clicked)
         self.btn_delete.connect("clicked", self.btn_delete_clicked)
+
+        # List related to video id
+        list_icon = gtk.image_new_from_file(os.path.join(sys.path[0], 
+                                                "images", 
+                                                "menu-24.png"))
         
+        self.btn_list_video_id = gtk.Button()
+        self.btn_list_video_id.set_image(list_icon)
+        self.btn_list_video_id.set_tooltip_text("List related to video")
+        self.btn_list_video_id.connect("clicked", self.btn_list_video_id_clicked)
+        self.btn_list_video_id.show()
+
+        hb_actions.pack_start(self.btn_list_video_id, True, False, 1)
         hb_actions.pack_start(self.btn_save, True, False, 1)
         hb_actions.pack_start(self.btn_delete, True, False, 1)
         hb_actions.show()
@@ -407,12 +419,22 @@ class Gui(gtk.Window):
         else:
             self.search_net.order = 'date'
 
+    def on_new_common(self):
+        self.results_history.save_on_new_search()
+        self.create_new_results_model()
+        self.set_results_model()
+
+    def on_new_and_refresh_common(self):
+        # Part common to new and refresh
+        self.saved_items.on_search_started()
+        self.images_indices.clear()
+        self.search_net.page_token = ""
+        self.start_search_task()
+
     def get_search_data(self, query, category_title, category_id):
         if (not self.is_search_the_same(query)
-            or not self.is_categories_the_same(category_title, category_id)):
-            self.results_history.save_on_new_search()
-            self.create_new_results_model()
-            self.set_results_model()
+            or not self.is_categories_the_same(category_title, category_id)):#new
+            self.on_new_common()
             if query != '':
                 self.results_title = "Search: " + query
                 self.search_net.set_query(query)
@@ -420,12 +442,17 @@ class Gui(gtk.Window):
             else:
                 self.results_title = category_title
                 self.search_net.set_category_id(category_id)
+        else: # refresh
+            self.results_store.clear()
+        self.on_new_and_refresh_common()
+
+    def get_search_data_by_video_id(self, video_id):
+        if self.search_net.video_id != video_id:
+            self.on_new_common()
+            self.search_net.set_video_id(video_id)
         else:
             self.results_store.clear()
-        self.saved_items.on_search_started()
-        self.images_indices.clear()
-        self.search_net.page_token = ""
-        self.start_search_task()
+        self.on_new_and_refresh_common()
         
     def entry_activated(self, widget):
         query = widget.get_text().strip()
@@ -654,6 +681,9 @@ class Gui(gtk.Window):
 
     def btn_home_clicked(self, widget):
         self.get_search_data('', 'Home', '')
+
+    def btn_list_video_id_clicked(self, widget):
+        self.get_search_data_by_video_id(self.video_id_processor.video_id)
     
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
