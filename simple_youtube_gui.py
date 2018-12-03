@@ -401,11 +401,6 @@ class Gui(gtk.Window):
         return (self.rtb_views.get_active() and self.search_net.order == 'viewCount'
                  or self.rtb_date.get_active() and self.search_net.order == 'date')
 
-    def is_search_the_same(self, query):
-        if query == '':
-            return True
-        return self.search_net.query == query and self.is_order_matches()
-
     def is_categories_the_same(self, category_title, category_id):
         if category_title == 'Home':
             return False
@@ -430,21 +425,6 @@ class Gui(gtk.Window):
         self.images_indices.clear()
         self.search_net.page_token = ""
         self.start_search_task()
-
-    def get_search_data(self, query, category_title, category_id):
-        if (not self.is_search_the_same(query)
-            or not self.is_categories_the_same(category_title, category_id)):#new
-            self.on_new_common()
-            if query != '':
-                self.results_title = "Search: " + query
-                self.search_net.set_query(query)
-                self.set_search_order()
-            else:
-                self.results_title = category_title
-                self.search_net.set_category_id(category_id)
-        else: # refresh
-            self.results_store.clear()
-        self.on_new_and_refresh_common()
 
     def get_search_data_for_home(self):
         if self.results_title != 'Home':
@@ -647,8 +627,8 @@ class Gui(gtk.Window):
         self.vb_right.set_visible(widget.get_active())
 
     def btn_refresh_clicked(self, widget):
-        self.get_search_data(self.search_net.query, '',
-                             self.search_net.category_id)
+        self.results_store.clear()
+        self.on_new_and_refresh_common()
 
     def btn_prev_clicked(self, widget):
         self.results_history.btn_prev_clicked()
