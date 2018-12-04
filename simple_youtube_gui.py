@@ -16,6 +16,7 @@ from youtube_dl_processor import VideoIdProcessor
 from resolutions_task import ResolutionsTask
 from results_history import ResultsHistory
 from saved_items import SavedItems
+from channel_net import ChannelNet
 
 PROG_NAME = "Simple youtube"
 COL_PIXBUF = 0
@@ -239,9 +240,29 @@ class Gui(gtk.Window):
         self.btn_list_video_id.connect("clicked", self.btn_list_video_id_clicked)
         self.btn_list_video_id.show()
 
-        hb_actions.pack_start(self.btn_list_video_id, True, False, 1)
-        hb_actions.pack_start(self.btn_save, True, False, 1)
-        hb_actions.pack_start(self.btn_delete, True, False, 1)
+        # List channel videos
+        self.channel_icon = gtk.image_new_from_file(os.path.join(sys.path[0], 
+                                                            "images", 
+                                                            "video-playlist-24.png"))
+
+        self.channel_error_icon = gtk.image_new_from_file(os.path.join(sys.path[0], 
+                                                            "images", 
+                                                            "box-important-24.png"))
+        
+        self.btn_list_channel = gtk.Button()
+        self.btn_list_channel.set_image(self.channel_icon)
+        self.btn_list_channel.set_tooltip_text("List channel videos")
+        self.btn_list_channel.connect("clicked", self.btn_channel_clicked)
+        self.btn_list_channel.show()
+
+        self.sp_channel = gtk.Spinner()
+        self.sp_channel.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
+
+        hb_actions.pack_start(self.btn_list_video_id, True, True, 1)
+        hb_actions.pack_start(self.btn_save, True, True, 1)
+        hb_actions.pack_start(self.btn_delete, True, True, 1)
+        hb_actions.pack_start(self.sp_channel, True, False, 1)
+        hb_actions.pack_start(self.btn_list_channel, True, True, 1)
         hb_actions.show()
 
         # Client frame
@@ -349,6 +370,8 @@ class Gui(gtk.Window):
 
         self.saved_items = SavedItems(self)
         self.saved_items.list_saved_files(False, True)
+
+        self.channel_net = ChannelNet(API_KEY, self)
         
         self.is_empty = True
         if API_KEY == "":
@@ -694,6 +717,28 @@ class Gui(gtk.Window):
 
     def btn_list_video_id_clicked(self, widget):
         self.get_search_data_by_video_id()
+
+    def show_channel_loading_indicator(self):
+        self.sp_channel.show()
+        self.sp_channel.start()
+        self.btn_list_channel.hide()
+
+    def show_list_channel_button(self):
+        self.sp_channel.hide()
+        self.sp_channel.stop()
+        self.btn_list_channel.set_image(self.channel_icon)
+        self.btn_list_channel.show()
+
+    def show_error_channel_button(self):
+        self.sp_channel.hide()
+        self.sp_channel.stop()
+        self.btn_list_channel.set_image(self.channel_error_icon)
+        self.btn_list_channel.show()
+
+    def btn_channel_clicked(self, widget):
+        self.channel_net.video_id = self.saved_items.video_id
+        search_task = SearchTask(self.channel_net)
+        search_task.start()
     
     def get_results_position(self):
         visible_range = self.iv_results.get_visible_range()
