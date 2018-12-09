@@ -8,6 +8,9 @@ class SavedResults:
         self.page_token = ""
         self.position = ""
         self.order = ""
+        self.category_id = ""
+        self.video_id = ""
+        self.channel_id = ""
 
 class ResultsHistory:
     def __init__(self, gui):
@@ -23,6 +26,9 @@ class ResultsHistory:
         saved_results.page_token = self.gui.search_net.page_token
         saved_results.position = self.gui.get_results_position()
         saved_results.order = self.gui.search_net.order
+        saved_results.category_id = self.gui.search_net.category_id
+        saved_results.video_id = self.gui.search_net.video_id
+        saved_results.channel_id = self.gui.search_net.channel_id
         return saved_results
 
     def restore_from_saved_results(self, saved_results):
@@ -36,6 +42,9 @@ class ResultsHistory:
         self.gui.search_net.page_token = saved_results.page_token
         self.gui.set_results_position(saved_results.position)
         self.gui.restore_search_order(saved_results.order)
+        self.gui.search_net.category_id = saved_results.category_id
+        self.gui.search_net.video_id = saved_results.video_id
+        self.gui.search_net.channel_id = saved_results.channel_id
 
     def update_prev_next_buttons(self):
         prev_size = len(self.back_stack)
