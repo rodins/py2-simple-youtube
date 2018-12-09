@@ -496,6 +496,16 @@ class Gui(gtk.Window):
         else:
             self.results_store.clear()
         self.on_new_and_refresh_common()
+
+    def get_search_data_by_refresh(self):
+        if ((self.search_net.query != '' or self.search_net.channel_id != '')
+            and not self.is_order_matches()): # order changed and refresh clicke
+            self.on_new_common()
+            self.set_search_order()
+        else:
+            self.results_store.clear()
+        self.on_new_and_refresh_common()
+                
         
     def entry_activated(self, widget):
         query = widget.get_text().strip()
@@ -660,8 +670,7 @@ class Gui(gtk.Window):
         self.vb_right.set_visible(widget.get_active())
 
     def btn_refresh_clicked(self, widget):
-        self.results_store.clear()
-        self.on_new_and_refresh_common()
+        self.get_search_data_by_refresh()
 
     def btn_prev_clicked(self, widget):
         self.results_history.btn_prev_clicked()
