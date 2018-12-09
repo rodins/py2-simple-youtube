@@ -488,10 +488,11 @@ class Gui(gtk.Window):
         self.on_new_and_refresh_common()
 
     def get_search_data_by_channel_id(self, title, channel_id):
-        if self.search_net.channel_id != channel_id:
+        if self.search_net.channel_id != channel_id or not self.is_order_matches():
             self.on_new_common()
             self.results_title = title
             self.search_net.set_channel_id(channel_id)
+            self.set_search_order()
         else:
             self.results_store.clear()
         self.on_new_and_refresh_common()

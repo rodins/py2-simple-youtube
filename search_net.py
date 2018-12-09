@@ -82,6 +82,7 @@ class SearchNet:
             data['relatedToVideoId'] = self.video_id
         if self.channel_id != '':
             data['channelId'] = self.channel_id
+            data['order'] = self.order
         data['type'] = 'video'
         if self.language != "":
             data['relevanceLanguage'] = self.language
