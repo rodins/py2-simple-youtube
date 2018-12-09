@@ -486,6 +486,15 @@ class Gui(gtk.Window):
         else:
             self.results_store.clear()
         self.on_new_and_refresh_common()
+
+    def get_search_data_by_channel_id(self, title, channel_id):
+        if self.search_net.channel_id != channel_id:
+            self.on_new_common()
+            self.results_title = title
+            self.search_net.set_channel_id(channel_id)
+        else:
+            self.results_store.clear()
+        self.on_new_and_refresh_common()
         
     def entry_activated(self, widget):
         query = widget.get_text().strip()

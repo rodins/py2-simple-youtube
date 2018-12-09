@@ -20,6 +20,7 @@ class SearchNet:
         self.query = ""
         self.category_id = ""
         self.video_id = ""
+        self.channel_id = ""
         try:
             locale = loc[0].split('_')
             self.language = locale[0]
@@ -33,6 +34,7 @@ class SearchNet:
         self.query = ""
         self.video_id = ""
         self.category_id = ""
+        self.channel_id = ""
             
     def set_query(self, query):
         self.clear()
@@ -45,6 +47,10 @@ class SearchNet:
     def set_video_id(self, video_id):
         self.clear()
         self.video_id = video_id
+
+    def set_channel_id(self, channel_id):
+        self.clear()
+        self.channel_id = channel_id
 
     def build_videos_url(self):
         data = {}
@@ -74,6 +80,8 @@ class SearchNet:
             data['order'] = self.order
         if self.video_id != '':
             data['relatedToVideoId'] = self.video_id
+        if self.channel_id != '':
+            data['channelId'] = self.channel_id
         data['type'] = 'video'
         if self.language != "":
             data['relevanceLanguage'] = self.language
@@ -89,7 +97,8 @@ class SearchNet:
 
     def get_results(self):
         if self.API_KEY != "":
-            if self.query != '' or self.video_id != '':
+            # TODO: change this if condition
+            if self.query != '' or self.video_id != '' or self.channel_id != '':
                 link = self.build_search_url()
                 is_videos = False
             else:

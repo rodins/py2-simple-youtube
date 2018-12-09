@@ -28,8 +28,9 @@ class ChannelNet:
         item = js['items'][0]
         channel_id = item['snippet']['channelId']
         channel_title = item['snippet']['channelTitle']
-        print channel_id
-        print channel_title
+        gobject.idle_add(self.gui.get_search_data_by_channel_id,
+                         channel_title,
+                         channel_id)
         
 
     def get_results(self):
