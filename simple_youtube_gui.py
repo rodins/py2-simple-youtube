@@ -377,7 +377,7 @@ class Gui(gtk.Window):
         if API_KEY == "":
             lb_api_key.show()
             self.sw_results.hide()
-            self.btn_categories.set_sensitive(False)
+            btn_categories.set_sensitive(False)
         
 
     def create_scrolled_window(self):
