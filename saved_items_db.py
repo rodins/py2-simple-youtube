@@ -4,6 +4,16 @@ import sys
 import gtk
 import sqlite3
 
+APP_DIR_NAME = ".simple_youtube"
+SAVES_DIR_NAME = "saves"
+SAVED_IMAGES_DIR_NAME = "saved_images"
+
+HOME = os.path.expanduser("~")
+APP_SAVES_DIR = os.path.join(HOME, APP_DIR_NAME, SAVES_DIR_NAME)
+APP_SAVED_IMAGES_DIR = os.path.join(HOME,
+                                    APP_DIR_NAME,
+                                    SAVED_IMAGES_DIR_NAME)
+
 #TODO: make calls async
 class SavedItemsDb:
     def __init__(self, gui):
@@ -64,10 +74,16 @@ class SavedItemsDb:
                 self.saved_items_store.clear()
                 self.gui.iv_results.set_model(self.saved_items_store)
                 for title, video_id in saves:
-                    self.saved_items_store.append([self.gui.EMPTY_POSTER,
-                                                   title,
-                                                   video_id,
-                                                   None])
+                    if self.is_image_saved(video_id):
+                        self.saved_items_store.append([self.get_image(video_id),
+                                                       title,
+                                                       video_id,
+                                                       None])
+                    else:
+                        self.saved_items_store.append([self.gui.EMPTY_POSTER,
+                                                       title,
+                                                       video_id,
+                                                       None])
                 if self.saved_items_position == None:
                     self.gui.scroll_to_top_of_list(self.saved_items_store)
                 else:
@@ -92,11 +108,13 @@ class SavedItemsDb:
 
     def btn_save_clicked(self):
         self.save_video_id()
+        self.save_image()
         self.switch_save_delete_buttons()
         self.list_saved_files()
 
     def btn_delete_clicked(self):
         self.remove_video_id()
+        self.remove_image()
         self.switch_save_delete_buttons()
         self.list_saved_files()
 
@@ -127,7 +145,7 @@ class SavedItemsDb:
         self.open_connection()
         self.create_table_if_needed()
         self.cur.execute('INSERT INTO videos VALUES (?, ?)',
-                                (self.title, self.video_id))
+                        (self.title, self.video_id))
         self.conn.commit()
         self.close_connection()
 
@@ -137,6 +155,26 @@ class SavedItemsDb:
                          (self.video_id,))
         self.conn.commit()
         self.close_connection()
+
+    def is_image_saved(self, video_id):
+        path = os.path.join(APP_SAVED_IMAGES_DIR, video_id)
+        return os.path.exists(path)
+
+    def get_image(self, video_id):
+        path = os.path.join(APP_SAVED_IMAGES_DIR, video_id)
+        return gtk.gdk.pixbuf_new_from_file(path)
+
+    def save_image(self):
+        if not os.path.exists(APP_SAVED_IMAGES_DIR):
+            os.makedirs(APP_SAVED_IMAGES_DIR)
+        path = os.path.join(APP_SAVED_IMAGES_DIR, self.video_id)
+        if self.pixbuf != None:
+                self.pixbuf.save(path, 'png')
+
+    def remove_image(self):
+        path = os.path.join(APP_SAVED_IMAGES_DIR, self.video_id)
+        if os.path.exists(path):
+            os.remove(path)
 
     def switch_save_delete_buttons(self):
         is_saved = self.is_video_id_saved()
