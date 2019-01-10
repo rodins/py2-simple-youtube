@@ -147,7 +147,7 @@ class SavedItemsDb:
         self.open_connection()
         self.create_table_if_needed()
         self.cur.execute('INSERT INTO videos VALUES (?, ?)',
-                        (self.title, self.video_id))
+                        (unicode(self.title), self.video_id))
         self.conn.commit()
         self.close_connection()
 
