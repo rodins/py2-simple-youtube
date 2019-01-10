@@ -15,7 +15,7 @@ from image_task import ImageTask
 from youtube_dl_processor import VideoIdProcessor
 from resolutions_task import ResolutionsTask
 from results_history import ResultsHistory
-from saved_items import SavedItems
+from saved_items_db import SavedItemsDb
 from channel_net import ChannelNet
 
 PROG_NAME = "Simple youtube"
@@ -368,7 +368,7 @@ class Gui(gtk.Window):
         self.results_store = None
         self.results_history = ResultsHistory(self)
 
-        self.saved_items = SavedItems(self)
+        self.saved_items = SavedItemsDb(self)
         self.saved_items.list_saved_files(False, True)
 
         self.channel_net = ChannelNet(API_KEY, self)
