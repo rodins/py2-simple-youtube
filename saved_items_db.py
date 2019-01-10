@@ -4,16 +4,6 @@ import sys
 import gtk
 import sqlite3
 
-APP_DIR_NAME = ".simple_youtube"
-SAVES_DIR_NAME = "saves"
-SAVED_IMAGES_DIR_NAME = "saved_images"
-
-HOME = os.path.expanduser("~")
-APP_SAVES_DIR = os.path.join(HOME, APP_DIR_NAME, SAVES_DIR_NAME)
-APP_SAVED_IMAGES_DIR = os.path.join(HOME,
-                                    APP_DIR_NAME,
-                                    SAVED_IMAGES_DIR_NAME)
-
 #TODO: make calls async
 class SavedItemsDb:
     def __init__(self, gui):
@@ -25,11 +15,22 @@ class SavedItemsDb:
                                                str,
                                                str)
         self.saved_items_position = None
+
+        APP_DIR_NAME = ".simple_youtube"
+        SAVES_DIR_NAME = "saves"
+        DATA_DIR_NAME = "data"
+        DATABASE_NAME = "saved_items.db"
+        SAVED_IMAGES_DIR_NAME = "saved_images"
+
+        home_dir = os.path.expanduser("~")
+        app_dir = os.path.join(home_dir, APP_DIR_NAME)
+        #app_saves_dir = os.path.join(app_dir, SAVES_DIR_NAME)
+        self.app_saved_images_dir = os.path.join(app_dir, SAVED_IMAGES_DIR_NAME)
         
-        self.db_directory = os.path.join(sys.path[0], 'data')
+        self.db_directory = os.path.join(app_dir, DATA_DIR_NAME)
         if not os.path.exists(self.db_directory):
             os.makedirs(self.db_directory)
-        self.db_path = os.path.join(self.db_directory, 'saved_items.db')
+        self.db_path = os.path.join(self.db_directory, DATABASE_NAME)
         self.is_table_created = False
 
     def open_connection(self):
@@ -157,22 +158,22 @@ class SavedItemsDb:
         self.close_connection()
 
     def is_image_saved(self, video_id):
-        path = os.path.join(APP_SAVED_IMAGES_DIR, video_id)
+        path = os.path.join(self.app_saved_images_dir, video_id)
         return os.path.exists(path)
 
     def get_image(self, video_id):
-        path = os.path.join(APP_SAVED_IMAGES_DIR, video_id)
+        path = os.path.join(self.app_saved_images_dir, video_id)
         return gtk.gdk.pixbuf_new_from_file(path)
 
     def save_image(self):
-        if not os.path.exists(APP_SAVED_IMAGES_DIR):
-            os.makedirs(APP_SAVED_IMAGES_DIR)
-        path = os.path.join(APP_SAVED_IMAGES_DIR, self.video_id)
+        if not os.path.exists(self.app_saved_images_dir):
+            os.makedirs(self.app_saved_images_dir)
+        path = os.path.join(self.app_saved_images_dir, self.video_id)
         if self.pixbuf != None:
                 self.pixbuf.save(path, 'png')
 
     def remove_image(self):
-        path = os.path.join(APP_SAVED_IMAGES_DIR, self.video_id)
+        path = os.path.join(self.app_saved_images_dir, self.video_id)
         if os.path.exists(path):
             os.remove(path)
 
