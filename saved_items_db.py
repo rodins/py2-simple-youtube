@@ -24,7 +24,7 @@ class SavedItemsDb:
 
         home_dir = os.path.expanduser("~")
         app_dir = os.path.join(home_dir, APP_DIR_NAME)
-        #app_saves_dir = os.path.join(app_dir, SAVES_DIR_NAME)
+        self.app_saves_dir = os.path.join(app_dir, SAVES_DIR_NAME)
         self.app_saved_images_dir = os.path.join(app_dir, SAVED_IMAGES_DIR_NAME)
         
         self.db_directory = os.path.join(app_dir, DATA_DIR_NAME)
@@ -32,6 +32,7 @@ class SavedItemsDb:
             os.makedirs(self.db_directory)
         self.db_path = os.path.join(self.db_directory, DATABASE_NAME)
         self.is_table_created = False
+        self.copy_from_saves_to_db()
 
     def open_connection(self):
         self.conn = sqlite3.connect(self.db_path)
@@ -176,6 +177,40 @@ class SavedItemsDb:
         path = os.path.join(self.app_saved_images_dir, self.video_id)
         if os.path.exists(path):
             os.remove(path)
+
+    def get_saved_title(self, video_id):
+        filename = os.path.join(self.app_saves_dir, video_id)
+        with open(filename, "r") as f:
+            return f.read()
+
+    def remove_file_video_id(self):
+        path = os.path.join(self.app_saves_dir, self.video_id)
+        if os.path.exists(path):
+            os.remove(path)
+
+    def copy_from_saves_to_db(self):
+        if os.path.exists(self.app_saves_dir):
+            self.open_connection()
+            try:
+                # Test if table exists
+                self.cur.execute('SELECT * FROM videos')
+                self.is_table_created = True
+            except sqlite3.OperationalError as ex:
+                print ex
+                self.create_table_if_needed()
+            try:
+                print "Moving saved files into database..."
+                for video_id in os.listdir(self.app_saves_dir):
+                    title = self.get_saved_title(video_id)
+                    self.cur.execute('INSERT INTO videos VALUES (?, ?)',
+                                    (unicode(title), unicode(video_id)))
+                    self.video_id = video_id # needed to delete file
+                    self.remove_file_video_id()
+                self.conn.commit()
+                os.rmdir(self.app_saves_dir)
+            except OSError as ex:
+                print ex
+            self.close_connection()
 
     def switch_save_delete_buttons(self):
         is_saved = self.is_video_id_saved()
