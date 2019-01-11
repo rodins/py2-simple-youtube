@@ -369,7 +369,6 @@ class Gui(gtk.Window):
         self.results_history = ResultsHistory(self)
 
         self.saved_items = SavedItemsDb(self)
-        self.saved_items.list_saved_files(False, True)
 
         self.channel_net = ChannelNet(API_KEY, self)
         

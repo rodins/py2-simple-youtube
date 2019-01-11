@@ -33,7 +33,7 @@ class SavedItemsDb:
             os.makedirs(self.db_directory)
         self.db_path = os.path.join(self.db_directory, DATABASE_NAME)
         self.is_table_created = False
-        thread = threading.Thread(target=self.copy_from_saves_to_db)
+        thread = threading.Thread(target=self.init_database)
         thread.start()
 
     def open_connection(self):
@@ -52,7 +52,7 @@ class SavedItemsDb:
     def create_table_if_needed(self):
         if not self.is_table_created:
             # Maybe I should save image to the table
-            self.cur.execute('CREATE TABLE videos (title TEXT, video_id TEXT)')
+            self.cur.execute('CREATE TABLE videos (title TEXT, video_id TEXT UNIQUE)')
             self.is_table_created = True
 
     def switch_saves_to_results(self):
@@ -99,10 +99,8 @@ class SavedItemsDb:
                                                    False, 0, 0)
         elif button_click: # Switch back to results
             self.switch_saves_to_results()
-        
-        
-    def list_saved_files(self, button_click = False, on_start = False):
-        self.open_connection()
+
+    def list_saved_files_no_connection(self, button_click, on_start):
         try:
             saves = self.cur.execute('SELECT * FROM videos').fetchall();
             self.is_table_created = True
@@ -112,6 +110,11 @@ class SavedItemsDb:
         except sqlite3.OperationalError as ex:
             print ex
             self.disable_btn_saved_items()
+        
+        
+    def list_saved_files(self, button_click = False):
+        self.open_connection()
+        self.list_saved_files_no_connection(button_click, False)
         self.close_connection()
 
     def btn_save_clicked_thread(self):
@@ -204,9 +207,14 @@ class SavedItemsDb:
         if os.path.exists(path):
             os.remove(path)
 
+    def init_database(self):
+        self.open_connection()
+        self.copy_from_saves_to_db()
+        self.list_saved_files_no_connection(False, True)
+        self.close_connection()
+
     def copy_from_saves_to_db(self):
         if os.path.exists(self.app_saves_dir):
-            self.open_connection()
             try:
                 # Test if table exists
                 self.cur.execute('SELECT * FROM videos')
@@ -218,16 +226,18 @@ class SavedItemsDb:
                 print "Moving saved files into database..."
                 for video_id in os.listdir(self.app_saves_dir):
                     title = self.get_saved_title(video_id)
-                    self.cur.execute('INSERT INTO videos VALUES (?, ?)',
-                                    (unicode(title), unicode(video_id)))
+                    try:
+                        self.cur.execute('INSERT INTO videos VALUES (?, ?)',
+                                        (unicode(title), video_id))
+                    except sqlite3.IntegrityError as ex:
+                        print "Video id is repeated"
                     self.video_id = video_id # needed to delete file
                     self.remove_file_video_id()
                 self.conn.commit()
                 os.rmdir(self.app_saves_dir)
             except OSError as ex:
                 print ex
-            self.close_connection()
-
+            
     def switch_save_delete_buttons_main_thread(self, is_saved):
         self.gui.btn_save.set_visible(not is_saved)
         self.gui.btn_delete.set_visible(is_saved)
