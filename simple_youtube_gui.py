@@ -518,7 +518,10 @@ class Gui(gtk.Window):
         upper = adj.get_upper()
         page_size = adj.get_page_size()
         max_value = value + page_size + page_size
-        if max_value > upper and not self.is_task_started and not self.is_empty:
+        if (max_value > upper
+            and not self.is_task_started
+            and not self.is_empty
+            and self.search_net.page_token != ""):
             self.start_search_task()
 
     def on_results_draw(self, widget, event):
@@ -583,10 +586,10 @@ class Gui(gtk.Window):
         self.sp_results.start()
         self.sw_results.set_visible(is_paging)
         self.vb_results.set_child_packing(self.sp_results, 
-                                        not is_paging, 
-                                        False, 
-                                        1, 
-                                        gtk.PACK_START)
+                                          not is_paging, 
+                                          False, 
+                                          1, 
+                                          gtk.PACK_START)
         self.hb_results_error.hide()
 
     def show_saved_results_data(self):
