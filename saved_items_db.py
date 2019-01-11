@@ -3,8 +3,9 @@ import os
 import sys
 import gtk
 import sqlite3
+import threading
+import gobject
 
-#TODO: make calls async
 class SavedItemsDb:
     def __init__(self, gui):
         self.gui = gui
@@ -32,7 +33,8 @@ class SavedItemsDb:
             os.makedirs(self.db_directory)
         self.db_path = os.path.join(self.db_directory, DATABASE_NAME)
         self.is_table_created = False
-        self.copy_from_saves_to_db()
+        thread = threading.Thread(target=self.copy_from_saves_to_db)
+        thread.start()
 
     def open_connection(self):
         self.conn = sqlite3.connect(self.db_path)
@@ -49,80 +51,98 @@ class SavedItemsDb:
 
     def create_table_if_needed(self):
         if not self.is_table_created:
-            #TODO: save image to table
+            # Maybe I should save image to the table
             self.cur.execute('CREATE TABLE videos (title TEXT, video_id TEXT)')
             self.is_table_created = True
+
+    def switch_saves_to_results(self):
+        self.preserve_saved_items_position()
+        self.gui.results_history.update_prev_next_buttons()
+        # FIRST set model
+        self.gui.set_results_model()
+        # THEN restore position
+        if self.results_position != None and self.gui.results_store != None:
+            self.gui.iv_results.scroll_to_path(self.results_position,
+                                               False, 0, 0)
+            self.gui.btn_refresh.set_sensitive(True)
+        self.gui.set_results_title()
+
+    def list_saved_files_main_thread(self, saves, button_click, on_start):
+        if len(saves) > 0:
+            if on_start:
+                self.gui.btn_saved_items.set_active(True)
+            self.gui.btn_saved_items.set_sensitive(True)
+        else:
+            self.disable_btn_saved_items()
+
+        if self.gui.btn_saved_items.get_active(): # Show saved items
+            self.results_position = self.gui.get_results_position()
+            self.gui.show_saved_results_data()
+            
+            self.saved_items_store.clear()
+            self.gui.iv_results.set_model(self.saved_items_store)
+            for title, video_id in saves:
+                if self.is_image_saved(video_id):
+                    self.saved_items_store.append([self.get_image(video_id),
+                                                   title,
+                                                   video_id,
+                                                   None])
+                else:
+                    self.saved_items_store.append([self.gui.EMPTY_POSTER,
+                                                   title,
+                                                   video_id,
+                                                   None])
+            if self.saved_items_position == None:
+                self.gui.scroll_to_top_of_list(self.saved_items_store)
+            else:
+                self.gui.iv_results.scroll_to_path(self.saved_items_position,
+                                                   False, 0, 0)
+        elif button_click: # Switch back to results
+            self.switch_saves_to_results()
+        
         
     def list_saved_files(self, button_click = False, on_start = False):
         self.open_connection()
         try:
             saves = self.cur.execute('SELECT * FROM videos').fetchall();
             self.is_table_created = True
-            if len(saves) > 0:
-                if on_start:
-                    self.gui.btn_saved_items.set_active(True)
-                self.gui.btn_saved_items.set_sensitive(True)
-            else:
-                self.disable_btn_saved_items()
-
-            if self.gui.btn_saved_items.get_active(): # Show saved items
-                self.results_position = self.gui.get_results_position()
-                self.gui.show_saved_results_data()
-                
-                self.saved_items_store.clear()
-                self.gui.iv_results.set_model(self.saved_items_store)
-                for title, video_id in saves:
-                    if self.is_image_saved(video_id):
-                        self.saved_items_store.append([self.get_image(video_id),
-                                                       title,
-                                                       video_id,
-                                                       None])
-                    else:
-                        self.saved_items_store.append([self.gui.EMPTY_POSTER,
-                                                       title,
-                                                       video_id,
-                                                       None])
-                if self.saved_items_position == None:
-                    self.gui.scroll_to_top_of_list(self.saved_items_store)
-                else:
-                    self.gui.iv_results.scroll_to_path(self.saved_items_position,
-                                                       False, 0, 0)
-            elif button_click: # Switch back to results
-                self.preserve_saved_items_position()
-                
-                self.gui.results_history.update_prev_next_buttons()
-                # FIRST set model
-                self.gui.set_results_model()
-                # THEN restore position
-                if self.results_position != None and self.gui.results_store != None:
-                    self.gui.iv_results.scroll_to_path(self.results_position,
-                                                       False, 0, 0)
-                    self.gui.btn_refresh.set_sensitive(True)
-                self.gui.set_results_title()
+            gobject.idle_add(self.list_saved_files_main_thread, saves,
+                             button_click,
+                             on_start)
         except sqlite3.OperationalError as ex:
             print ex
             self.disable_btn_saved_items()
         self.close_connection()
 
-    def btn_save_clicked(self):
+    def btn_save_clicked_thread(self):
         self.save_video_id()
         self.save_image()
         self.switch_save_delete_buttons()
         self.list_saved_files()
 
-    def btn_delete_clicked(self):
+    def btn_save_clicked(self):
+        thread = threading.Thread(target=self.btn_save_clicked_thread)
+        thread.start()
+
+    def btn_delete_clicked_thread(self):
         self.remove_video_id()
         self.remove_image()
         self.switch_save_delete_buttons()
         self.list_saved_files()
 
+    def btn_delete_clicked(self):
+        thread = threading.Thread(target=self.btn_delete_clicked_thread)
+        thread.start()
+
     def btn_saved_items_clicked(self):
-        self.list_saved_files(True)
+        thread = threading.Thread(target=self.list_saved_files,
+                                  args=(True,))
+        thread.start()
 
     def on_search_started(self):
         if self.gui.btn_saved_items.get_active():
             self.gui.btn_saved_items.set_active(False)
-            self.list_saved_files(True)
+            self.switch_saves_to_results()
 
     def disable_btn_saved_items(self):
         self.gui.btn_saved_items.set_sensitive(False)
@@ -208,10 +228,14 @@ class SavedItemsDb:
                 print ex
             self.close_connection()
 
-    def switch_save_delete_buttons(self):
-        is_saved = self.is_video_id_saved()
+    def switch_save_delete_buttons_main_thread(self, is_saved):
         self.gui.btn_save.set_visible(not is_saved)
         self.gui.btn_delete.set_visible(is_saved)
+
+    def switch_save_delete_buttons(self):
+        is_saved = self.is_video_id_saved()
+        gobject.idle_add(self.switch_save_delete_buttons_main_thread,
+                         is_saved)
             
     def preserve_saved_items_position(self):
         visible_range = self.gui.iv_results.get_visible_range()
