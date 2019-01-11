@@ -155,7 +155,8 @@ class Gui(gtk.Window):
         vadj = self.sw_results.get_vadjustment()
         vadj.connect("value-changed", self.on_results_scroll_to_bottom)
         self.iv_results.connect("expose-event", self.on_results_draw)
-        self.iv_results.connect("item-activated", self.on_result_activated)
+        self.iv_results.connect("selection-changed",
+                                self.on_result_selection_changed)
 
         # Error
         btn_results_error = gtk.Button("Repeat")
@@ -550,7 +551,8 @@ class Gui(gtk.Window):
         else:
             self.set_player_text("No youtube-dl or streamlink detected")
 
-    def on_result_activated(self, iconview, path):
+    def on_result_selection_changed(self, iconview):
+        path = iconview.get_selected_items()[0]
         store = iconview.get_model()
         results_iter = store.get_iter(path)
         pixbuf = store.get_value(results_iter, 0)
@@ -564,6 +566,7 @@ class Gui(gtk.Window):
         self.btn_info.set_sensitive(True)
         self.btn_info.set_active(True)
         self.set_player_init_text()
+        
 
     def btn_results_error_clicked(self, widget):
         self.start_search_task()
