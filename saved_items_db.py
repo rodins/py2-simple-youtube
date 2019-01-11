@@ -67,11 +67,7 @@ class SavedItemsDb:
 
             if self.gui.btn_saved_items.get_active(): # Show saved items
                 self.results_position = self.gui.get_results_position()
-                #TODO: show_results_data. Not updated from results error
-                self.gui.btn_prev.set_sensitive(False)
-                self.gui.btn_next.set_sensitive(False)
-                self.gui.btn_refresh.set_sensitive(False)
-                self.gui.set_results_title("Saved items")
+                self.gui.show_saved_results_data()
                 
                 self.saved_items_store.clear()
                 self.gui.iv_results.set_model(self.saved_items_store)

@@ -590,6 +590,16 @@ class Gui(gtk.Window):
                                         gtk.PACK_START)
         self.hb_results_error.hide()
 
+    def show_saved_results_data(self):
+        self.btn_prev.set_sensitive(False)
+        self.btn_next.set_sensitive(False)
+        self.btn_refresh.set_sensitive(False)
+        self.set_results_title("Saved items")
+        self.sp_results.hide()
+        self.sp_results.stop()
+        self.sw_results.show()
+        self.hb_results_error.hide()
+
     def show_results_data(self):
         self.btn_refresh.set_sensitive(True)
         self.set_results_title()
