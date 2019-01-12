@@ -157,6 +157,7 @@ class Gui(gtk.Window):
         self.iv_results.connect("expose-event", self.on_results_draw)
         self.iv_results.connect("selection-changed",
                                 self.on_result_selection_changed)
+        self.iv_results.connect("item-activated", self.on_result_item_activated)
 
         # Error
         btn_results_error = gtk.Button("Repeat")
@@ -572,7 +573,13 @@ class Gui(gtk.Window):
         else:
             self.hb_actions.hide()
 
+    def on_result_item_activated(self, widget, path):
+        self.get_resolutions()
+
     def btn_get_links_clicked(self, widget):
+        self.get_resolutions()
+
+    def get_resolutions(self):
         self.lb_title.set_text(self.saved_items.title)
         self.vb_right.show()
         self.btn_info.set_sensitive(True)
