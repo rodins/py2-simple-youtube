@@ -186,10 +186,13 @@ class Gui(gtk.Window):
         # Resolutions
         self.sp_resolutions = gtk.Spinner()
         self.sp_resolutions.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
-        
-        image = gtk.image_new_from_stock(gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_BUTTON)
+
+        #TODO: group icons in one place
+        self.channel_error_icon = gtk.image_new_from_file(os.path.join(sys.path[0], 
+                                                          "images", 
+                                                          "box-important-24.png"))
         self.btn_resolutions_error = gtk.Button()
-        self.btn_resolutions_error.set_image(image)
+        self.btn_resolutions_error.set_image(self.channel_error_icon)
         self.btn_resolutions_error.connect("clicked",
                                            self.btn_resolutions_error_clicked)
 
@@ -243,12 +246,7 @@ class Gui(gtk.Window):
         # List channel videos
         self.channel_icon = gtk.image_new_from_file(os.path.join(sys.path[0], 
                                                             "images", 
-                                                            "video-playlist-24.png"))
-
-        self.channel_error_icon = gtk.image_new_from_file(os.path.join(sys.path[0], 
-                                                            "images", 
-                                                            "box-important-24.png"))
-        
+                                                            "video-playlist-24.png"))        
         self.btn_list_channel = gtk.Button()
         self.btn_list_channel.set_image(self.channel_icon)
         self.btn_list_channel.set_tooltip_text("List channel videos")
@@ -258,12 +256,21 @@ class Gui(gtk.Window):
         self.sp_channel = gtk.Spinner()
         self.sp_channel.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
 
+        image = gtk.image_new_from_stock(gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_BUTTON)
+        self.btn_get_links = gtk.Button()
+        self.btn_get_links.set_image(image)
+        self.btn_get_links.set_tooltip_text("Get links")
+        self.btn_get_links.connect("clicked",
+                                   self.btn_get_links_clicked)
+        self.btn_get_links.show()
+
         self.hb_actions = gtk.HBox(False, 1)
         self.hb_actions.pack_start(self.btn_list_video_id, True, True, 1)
         self.hb_actions.pack_start(self.btn_save, True, True, 1)
         self.hb_actions.pack_start(self.btn_delete, True, True, 1)
         self.hb_actions.pack_start(self.sp_channel, True, False, 1)
         self.hb_actions.pack_start(self.btn_list_channel, True, True, 1)
+        self.hb_actions.pack_start(self.btn_get_links, True, True, 1)
         self.vb_results.pack_end(self.hb_actions, False, False, 1)
 
         # Client frame
@@ -560,18 +567,19 @@ class Gui(gtk.Window):
             pixbuf = store.get_value(results_iter, 0)
             title = store.get_value(results_iter, 1)
             video_id = store.get_value(results_iter, 2)
-            self.lb_title.set_text(title)
             self.video_id_processor.video_id = video_id
             self.saved_items.set_data(pixbuf, title, video_id)
-            self.show_resolutions_button()
-            self.vb_right.show()
-            self.btn_info.set_sensitive(True)
-            self.btn_info.set_active(True)
-            self.set_player_init_text()
         else:
             self.hb_actions.hide()
-        
 
+    def btn_get_links_clicked(self, widget):
+        self.lb_title.set_text(self.saved_items.title)
+        self.vb_right.show()
+        self.btn_info.set_sensitive(True)
+        self.btn_info.set_active(True)
+        self.set_player_init_text()
+        self.start_resolutions_task()
+        
     def btn_results_error_clicked(self, widget):
         self.start_search_task()
 
