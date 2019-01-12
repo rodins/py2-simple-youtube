@@ -221,7 +221,6 @@ class Gui(gtk.Window):
                                                 "images", 
                                                 "star-filled-24.png"))
         
-        hb_actions = gtk.HBox(False, 1)
         self.btn_save = gtk.Button()
         self.btn_save.set_image(star_icon)
         self.btn_delete = gtk.Button()
@@ -259,13 +258,13 @@ class Gui(gtk.Window):
         self.sp_channel = gtk.Spinner()
         self.sp_channel.set_size_request(SPINNER_SIZE, SPINNER_SIZE)
 
-        hb_actions.pack_start(self.btn_list_video_id, True, True, 1)
-        hb_actions.pack_start(self.btn_save, True, True, 1)
-        hb_actions.pack_start(self.btn_delete, True, True, 1)
-        hb_actions.pack_start(self.sp_channel, True, False, 1)
-        hb_actions.pack_start(self.btn_list_channel, True, True, 1)
-        hb_actions.show()
-        self.vb_results.pack_end(hb_actions, False, False, 1)
+        self.hb_actions = gtk.HBox(False, 1)
+        self.hb_actions.pack_start(self.btn_list_video_id, True, True, 1)
+        self.hb_actions.pack_start(self.btn_save, True, True, 1)
+        self.hb_actions.pack_start(self.btn_delete, True, True, 1)
+        self.hb_actions.pack_start(self.sp_channel, True, False, 1)
+        self.hb_actions.pack_start(self.btn_list_channel, True, True, 1)
+        self.vb_results.pack_end(self.hb_actions, False, False, 1)
 
         # Client frame
         self.rb_ytdl = gtk.RadioButton(None, "youtube-dl")
@@ -303,7 +302,6 @@ class Gui(gtk.Window):
         self.vb_right.set_size_request(SIDE_WIDTH, -1)
         self.vb_right.pack_start(fr_title, False, False, 1)
         self.vb_right.pack_start(fr_resolutions, True, True, 1)
-        #self.vb_right.pack_start(hb_actions, False, False, 1)
         self.vb_right.pack_start(self.fr_client, False, False, 1)
         self.vb_right.pack_start(fr_player, False, False, 1)
 
@@ -553,20 +551,25 @@ class Gui(gtk.Window):
             self.set_player_text("No youtube-dl or streamlink detected")
 
     def on_result_selection_changed(self, iconview):
-        path = iconview.get_selected_items()[0]
-        store = iconview.get_model()
-        results_iter = store.get_iter(path)
-        pixbuf = store.get_value(results_iter, 0)
-        title = store.get_value(results_iter, 1)
-        video_id = store.get_value(results_iter, 2)
-        self.lb_title.set_text(title)
-        self.video_id_processor.video_id = video_id
-        self.saved_items.set_data(pixbuf, title, video_id)
-        self.show_resolutions_button()
-        self.vb_right.show()
-        self.btn_info.set_sensitive(True)
-        self.btn_info.set_active(True)
-        self.set_player_init_text()
+        items = iconview.get_selected_items()
+        if len(items)>0:
+            self.hb_actions.show()
+            path = items[0]
+            store = iconview.get_model()
+            results_iter = store.get_iter(path)
+            pixbuf = store.get_value(results_iter, 0)
+            title = store.get_value(results_iter, 1)
+            video_id = store.get_value(results_iter, 2)
+            self.lb_title.set_text(title)
+            self.video_id_processor.video_id = video_id
+            self.saved_items.set_data(pixbuf, title, video_id)
+            self.show_resolutions_button()
+            self.vb_right.show()
+            self.btn_info.set_sensitive(True)
+            self.btn_info.set_active(True)
+            self.set_player_init_text()
+        else:
+            self.hb_actions.hide()
         
 
     def btn_results_error_clicked(self, widget):
@@ -595,6 +598,7 @@ class Gui(gtk.Window):
                                           1, 
                                           gtk.PACK_START)
         self.hb_results_error.hide()
+        self.hb_actions.hide()
 
     def show_saved_results_data(self):
         self.btn_prev.set_sensitive(False)
