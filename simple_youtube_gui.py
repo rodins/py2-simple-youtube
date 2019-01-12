@@ -265,6 +265,7 @@ class Gui(gtk.Window):
         hb_actions.pack_start(self.sp_channel, True, False, 1)
         hb_actions.pack_start(self.btn_list_channel, True, True, 1)
         hb_actions.show()
+        self.vb_results.pack_end(hb_actions, False, False, 1)
 
         # Client frame
         self.rb_ytdl = gtk.RadioButton(None, "youtube-dl")
@@ -302,7 +303,7 @@ class Gui(gtk.Window):
         self.vb_right.set_size_request(SIDE_WIDTH, -1)
         self.vb_right.pack_start(fr_title, False, False, 1)
         self.vb_right.pack_start(fr_resolutions, True, True, 1)
-        self.vb_right.pack_start(hb_actions, False, False, 1)
+        #self.vb_right.pack_start(hb_actions, False, False, 1)
         self.vb_right.pack_start(self.fr_client, False, False, 1)
         self.vb_right.pack_start(fr_player, False, False, 1)
 
